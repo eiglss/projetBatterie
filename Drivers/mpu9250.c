@@ -305,7 +305,7 @@ int mpu9250_filter(mpu9250_t * mpu9250, uint8_t filter)
 *******************************************************************************/
 int mpu9250_enable_int(mpu9250_t * mpu9250)
 {
-    if(mpu9250_write_register(mpu9250, MPU9250_INT_PIN_CFG, MPU9250_INT_ANYRD_2CLEAR) == -1) return -1;
+    if(mpu9250_write_register(mpu9250, MPU9250_INT_PIN_CFG, MPU9250_INT_ANYRD_2CLEAR|MPU9250_BYPASS_EN) == -1) return -1;
     return mpu9250_write_register(mpu9250, MPU9250_INT_ENABLE, MPU9250_RAW_RDY_EN);
 }
 
@@ -315,8 +315,8 @@ int mpu9250_enable_int(mpu9250_t * mpu9250)
 *
 * @param    ak8963 is a pointer to the ak8963_t instance
 *
-* @return   -1 if an error occurred else 0 if data are not ready or 1 if data is
-*           ready o be read
+* @return   -1 if an error occurred else FALSE if data are not ready or TRUE if
+*           data are ready to be read
 *
 * @note     IIC in the mpu9250 instance must be initialize before using this
 *           function.
@@ -328,7 +328,7 @@ int ak8963_data_is_rdy(ak8963_t * ak8963)
     uint8_t data[1];
     /**/
     if(ak8963_read_register(ak8963, AK8963_ST1, data, 1) == -1) return -1;
-    return data[0]&AK8963_MAG_DRDY;
+    return (data[0]&(AK8963_MAG_DRDY|AK8963_MAG_DOR))? TRUE : FALSE;
 }
 
 /******************************************************************************/
@@ -351,7 +351,8 @@ int mpu9250_initialization(mpu9250_t * mpu9250, EUSCI_B_Type * eusci, uint32_t s
     if(mpu9250_write_register(mpu9250, MPU9250_CONFIG, 0) == -1) return -1;
     if(mpu9250_gy_scale(mpu9250, 0) == -1) return -1;
     if(mpu9250_acc_scale(mpu9250, 0) == -1) return -1;
-    return (mpu9250_filter(mpu9250, 0) == -1);
+    if(mpu9250_filter(mpu9250, 0) == -1) return -1;
+    return mpu9250_write_register(mpu9250, MPU9250_INT_PIN_CFG, MPU9250_BYPASS_EN); /* allow access to ak8963 */
 }
 
 /******************************************************************************/
@@ -363,7 +364,9 @@ int mpu9250_initialization(mpu9250_t * mpu9250, EUSCI_B_Type * eusci, uint32_t s
 * @return   -1 if an error occurred else 0
 *
 * @note     IIC in the ak8963 instance must be initialize before using this
-*           function.
+*           function. The MPU9250_BYPASS_EN bit of the MPU9250_INT_PIN_CFG
+*           register of the mpu9250 must be set before using this function.
+*           (mpu9250_initialization function set this bit)
 *
 *******************************************************************************/
 int ak8963_initialization(ak8963_t * ak8963, EUSCI_B_Type * eusci, uint32_t scl_Hz, uint8_t address)
@@ -376,7 +379,7 @@ int ak8963_initialization(ak8963_t * ak8963, EUSCI_B_Type * eusci, uint32_t scl_
 
 /******************************************************************************/
 /**
-* Transform gyroscope sensor raw data to �/s
+* Transform gyroscope sensor raw data to °/s
 *
 * @param    mpu9250 is a pointer to the mpu9250_t instance
 * @param    x,y,z are the raw data of the gyroscope sensor for x, y & z axis
