@@ -340,6 +340,7 @@ typedef struct
 }ak8963_t;
 
 /*******************************   FUNCTIONS    *******************************/
+/***** WRITE & READ to or from register *****/
 int mpu9250_write(mpu9250_t * mpu9250, uint8_t * data, uint8_t length);
 int mpu9250_read(mpu9250_t * mpu9250, uint8_t * data, uint8_t length);
 int mpu9250_write_register(mpu9250_t * mpu9250, uint8_t reg_addr, uint8_t data);
@@ -348,18 +349,24 @@ int ak8963_write(ak8963_t * ak8963, uint8_t * data, uint8_t length);
 int ak8963_read(ak8963_t * ak8963, uint8_t * data, uint8_t length);
 int ak8963_write_register(ak8963_t * ak8963, uint8_t reg_addr, uint8_t data);
 int ak8963_read_register(ak8963_t * ak8963, uint8_t reg_addr, uint8_t * data, uint8_t length);
+/***** AJUSING SCALE *****/
 int mpu9250_gy_scale(mpu9250_t * mpu9250, uint8_t scale);
 int mpu9250_acc_scale(mpu9250_t * mpu9250, uint8_t scale);
 int ak8963_mag_scale(ak8963_t * ak8963, uint8_t scale);
+/***** FILTER *****/
 int mpu9250_filter(mpu9250_t * mpu9250, uint8_t filter);
+/**** DATA AVAILABLE ****/
 int mpu9250_enable_int(mpu9250_t * mpu9250);
 int ak8963_data_is_rdy(ak8963_t * ak8963);
+/**** INITIALIZATION ****/
 int mpu9250_initialization(mpu9250_t * mpu9250, EUSCI_B_Type * eusci, uint32_t scl_Hz, uint8_t address);
 int ak8963_initialization(ak8963_t * ak8963, EUSCI_B_Type * eusci, uint32_t scl_Hz, uint8_t address);
+/**** CONVERSIONS ****/
 void mpu9250_gy_deg_per_s(mpu9250_t * mpu9250, const int16_t x, const int16_t y, const int16_t z);
 void mpu9250_acc_g(mpu9250_t * mpu9250, const int16_t x, const int16_t y, const int16_t z);
 int mpu9250_temp_degC(mpu9250_t * mpu9250, const int16_t temp_out);
 int ak8963_mag_uT(ak8963_t * ak8963, const int16_t x, const int16_t y, const int16_t z);
+/**** READ DATA from sensor ****/
 int mpu9250_read_acc(mpu9250_t * mpu9250);
 int mpu9250_read_gy(mpu9250_t * mpu9250);
 int mpu9250_read_temp(mpu9250_t * mpu9250);
