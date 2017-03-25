@@ -1,35 +1,38 @@
 /*******************************************************************************/
 /**
 *      @file : mpu9250.h
-*   @version : 0
+*   @version : 0.1
 *      @date : February 28, 2017
 *    @author : Enzo IGLESIS, Yonggi CHOI, Vincent MAIRE, Solene DOTHEE
 * @copyright : Copyright (c) 2017 E. IGLESIS, Y. CHOI, V. MAIRE, S. DOTHEE
 *              MIT License (MIT)
 *******************************************************************************/
+
+/*******************************    LIBRARYS    *******************************/
+#include "msp432p401r.h"
+#include "i2c.h"
+
 #ifndef MPU9250_H_
 #define MPU9250_H_
 
-
-/*******************************    LIBRARYS    *******************************/
-#include <stdint.h>
-#include "xiicps.h"
 /*******************************     MACROS     *******************************/
-/**** BITS ****/
-#define BIT0    (0x01)
-#define BIT1    (0x02)
-#define BIT2    (0x04)
-#define BIT3    (0x08)
-#define BIT4    (0x10)
-#define BIT5    (0x20)
-#define BIT6    (0x40)
-#define BIT7    (0x80)
+/**** TRUE & FALSE ****/
 
-/**** I²C ADDRESS ****/
-#define MPU9250_IIC_AGT     (0xD1)
-#define MPU9250_IIC_MAG     (0x0C)
+#ifndef FALSE
+    #define FALSE   (0)
+#endif
+#ifndef TRUE
+    #define TRUE (!FALSE)
+#endif
 
-/**** Register Map for Gyroscope and Accelerometer ****/
+/**** IIC ADDRESS ****/
+/* MPU9250 */
+#define MPU9250_AD0 (0)
+#define MPU9250_IIC (0x68|MPU9250_AD0)
+/* AK8963 */
+#define AK8963_ADDR (0x0C)
+
+/**** Register Map for Gyroscope and Accelerometer (MPU9250) ****/
 #define MPU9250_SELF_TEST_X_GYRO    (0x00)  /* R/W */
 #define MPU9250_SELF_TEST_Y_GYRO    (0x01)  /* R/W */
 #define MPU9250_SELF_TEST_Z_GYRO    (0x02)  /* R/W */
@@ -249,41 +252,40 @@
 #define MPU9250_ZA_OFFSET_L         (0x7E)  /* R/W */
     #define MPU9250_ZA_OFFS             (BIT7|BIT6|BIT5|BIT4|BIT3|BIT2|BIT1)
 
-/**** Register Map for Magnetometer ****/
-#define MPU9250_MAG_WIA             (0x00) /* R   */
-#define MPU9250_MAG_INFO            (0x01) /* R   */
-#define MPU9250_MAG_ST1             (0x02) /* R   */
-    #define MPU9250_MAG_DRDY            (BIT0)  /* Data Ready */
-    #define MPU9250_MAG_DOR             (BIT1)  /* Data Overrun */
-#define MPU9250_MAG_HXL             (0x03) /* R   */
-#define MPU9250_MAG_HXH             (0x04) /* R   */
-#define MPU9250_MAG_HYL             (0x05) /* R   */
-#define MPU9250_MAG_HYH             (0x06) /* R   */
-#define MPU9250_MAG_HZL             (0x07) /* R   */
-#define MPU9250_MAG_HZH             (0x08) /* R   */
-#define MPU9250_MAG_ST2             (0x09) /* R   */
-    #define MPU9250_MAG_HOFL            (BIT3)  /* Magnetic sensor overflow */
-    #define MPU9250_MAG_BITM            (BIT4)  /* Output bit setting (mirror) */
-#define MPU9250_MAG_CNTL1           (0x0A) /* R/W */
-    #define MPU9250_MAG_MODE            (BIT3|BIT2|BIT1|BIT0)
-        #define MPU9250_MAG_MODE0           (0x00)  /* Power-down mode */
-        #define MPU9250_MAG_MODE1           (BIT0)  /* Single measurement mode */
-        #define MPU9250_MAG_MODE2           (BIT1)  /* Continuous measurement mode 1 */
-        #define MPU9250_MAG_MODE3           (BIT2|BIT1) /* Continuous measurement mode 2 */
-        #define MPU9250_MAG_MODE4           (BIT2)  /* External trigger measurement mode */
-        #define MPU9250_MAG_MODE5           (BIT3)  /* Self-test mode */
-        #define MPU9250_MAG_MODE6           (BIT3|BIT2|BIT1|BIT0)   /* Fuse ROM access mode */
-    #define MPU9250_MAG_BIT             (BIT4)  /* Output bit setting  */
-#define MPU9250_MAG_CNTL2           (0x0B) /* R/W */
-    #define MPU9250_MAG_SRST            (BIT0)  /* Soft reset */
-#define MPU9250_MAG_ASTC            (0x0C) /* R/W */
-    #define MPU9250_MAG_SELF            (BIT6)  /* Self-test control */
-#define MPU9250_MAG_I2CDIS          (0x0F) /* R/W */
-    #define MPU9250_MAG_I2CDIS_VAL      (BIT4|BIT3|BIT1|BIT0)   /* This register disables I2
-C bus interface */
-#define MPU9250_MAG_ASAX            (0x10) /* R   */
-#define MPU9250_MAG_ASAY            (0x11) /* R   */
-#define MPU9250_MAG_ASAZ            (0x12) /* R   */
+/**** Register Map for Magnetometer (AK8963) ****/
+#define AK8963_WIA              (0x00) /* R   */
+#define AK8963_INFO             (0x01) /* R   */
+#define AK8963_ST1              (0x02) /* R   */
+    #define AK8963_MAG_DRDY         (BIT0)  /* Data Ready */
+    #define AK8963_MAG_DOR          (BIT1)  /* Data Overrun */
+#define AK8963_HXL              (0x03) /* R   */
+#define AK8963_HXH              (0x04) /* R   */
+#define AK8963_HYL              (0x05) /* R   */
+#define AK8963_HYH              (0x06) /* R   */
+#define AK8963_HZL              (0x07) /* R   */
+#define AK8963_HZH              (0x08) /* R   */
+#define AK8963_ST2              (0x09) /* R   */
+    #define AK8963_MAG_HOFL         (BIT3)  /* Magnetic sensor overflow */
+    #define AK8963_MAG_BITM         (BIT4)  /* Output bit setting (mirror) */
+#define AK8963_CNTL1            (0x0A) /* R/W */
+    #define AK8963_MAG_MODE         (BIT3|BIT2|BIT1|BIT0)
+        #define AK8963_MAG_MODE0        (0x00)  /* Power-down mode */
+        #define AK8963_MAG_MODE1        (BIT0)  /* Single measurement mode */
+        #define AK8963_MAG_MODE2        (BIT1)  /* Continuous measurement mode 1 */
+        #define AK8963_MAG_MODE3        (BIT2|BIT1) /* Continuous measurement mode 2 */
+        #define AK8963_MAG_MODE4        (BIT2)  /* External trigger measurement mode */
+        #define AK8963_MAG_MODE5        (BIT3)  /* Self-test mode */
+        #define AK8963_MAG_MODE6        (BIT3|BIT2|BIT1|BIT0)   /* Fuse ROM access mode */
+    #define AK8963_MAG_BIT              (BIT4)  /* Output bit setting  */
+#define AK8963_CNTL2            (0x0B) /* R/W */
+    #define AK8963_MAG_SRST         (BIT0)  /* Soft reset */
+#define AK8963_MAG_ASTC         (0x0C) /* R/W */
+    #define AK8963_MAG_SELF         (BIT6)  /* Self-test control */
+#define AK8963_MAG_I2CDIS       (0x0F) /* R/W */
+    #define AK8963_MAG_I2CDIS_VAL   (BIT4|BIT3|BIT1|BIT0)   /* This register disables I2C bus interface */
+#define AK8963_MAG_ASAX         (0x10) /* R   */
+#define AK8963_MAG_ASAY         (0x11) /* R   */
+#define AK8963_MAG_ASAZ         (0x12) /* R   */
 
 /***************** Macros (Inline Functions) Definitions **********************/
 /******************************************************************************/
@@ -304,42 +306,6 @@ C bus interface */
 *******************************************************************************/
 #define in_range(x, min, max)   (((x) >= (min) && (x) <= (max))? TRUE : FALSE)
 
-/******************************************************************************/
-/**
-* Write a byte to the mpu9250 from a specified address
-*
-* @param    iic_mpu9250 is a pointer to the XIicPs instance inside the mpu9250_t
-*           instance (iic_mpu9250 or iic_mpu9250_aux).
-* @param    register_addr is the register address where data must be write
-* @param    byte is the byte that will be write in the mpu9250
-*
-* @return   -1 if an error occured else 0
-*
-* @note     C-Style signature:
-*           int8_t mpu9250_write_byte(XIicPs * iic_mpu9250, const uint8_t
-*           register_addr, const uint8_t * byte)
-*
-*******************************************************************************/
-#define mpu9250_write_byte(iic_mpu9250, register_addr, byte)  mpu9250_write_data(iic_mpu9250, register_addr, (uint8_t *)byte, 1)
-
-/******************************************************************************/
-/**
-* Read a byte from the mpu9250 at a specified address
-*
-* @param    iic_mpu9250 is a pointer to the XIicPs instance inside the mpu9250_t
-*           instance (iic_mpu9250 or iic_mpu9250_aux).
-* @param    register_addr is the register address where data must be read
-* @param    byte is the byte that will be read in the mpu9250
-*
-* @return   -1 if an error occured else 0
-*
-* @note     C-Style signature:
-*           int8_t mpu9250_read_byte(XIicPs * iic_mpu9250, const uint8_t
-*           register_addr, uint8_t * byte)
-*
-*******************************************************************************/
-#define mpu9250_read_byte(iic_mpu9250, register_addr, byte)  mpu9250_read_data(iic_mpu9250, register_addr, (uint8_t [])byte, 1)
-
 /*******************************     TYPES      *******************************/
 typedef struct
 {
@@ -351,8 +317,7 @@ typedef struct
 typedef struct
 {
     /* iic */
-    XIicPs iic_mpu9250;
-    XIicPs iic_aux_mpu9250;
+    i2c_slave_t iic;
     /* Gyroscope Features */
     uint8_t  gy_full_scale      : 2;
     uint8_t  gy_low_pass_filter : 3;
@@ -361,15 +326,44 @@ typedef struct
     uint8_t  acc_full_scale      : 2;
     uint8_t  acc_low_pass_filter : 3;
     axi_3d_t acc_data; /* g */
-    /* Magnetometer Features */
-    axi_3d_t mag_data; /* µT */
     /* Additional Features */
     float    temp_data; /* °C */
 }mpu9250_t;
-/*******************************   CONSTANTES   *******************************/
 
-/*******************************    VARIABLES   *******************************/
+typedef struct
+{
+    /* iic */
+    i2c_slave_t iic;
+    /* Magnetometer Features */
+    uint8_t  mag_full_scale : 1; /* 0: 14 bits precision; 1: 16 bits precision */
+    axi_3d_t mag_data; /* µT */
+}ak8963_t;
 
 /*******************************   FUNCTIONS    *******************************/
+int mpu9250_write(mpu9250_t * mpu9250, uint8_t * data, uint8_t length);
+int mpu9250_read(mpu9250_t * mpu9250, uint8_t * data, uint8_t length);
+int mpu9250_write_register(mpu9250_t * mpu9250, uint8_t reg_addr, uint8_t data);
+int mpu9250_read_register(mpu9250_t * mpu9250, uint8_t reg_addr, uint8_t * data, uint8_t length);
+int ak8963_write(ak8963_t * ak8963, uint8_t * data, uint8_t length);
+int ak8963_read(ak8963_t * ak8963, uint8_t * data, uint8_t length);
+int ak8963_write_register(ak8963_t * ak8963, uint8_t reg_addr, uint8_t data);
+int ak8963_read_register(ak8963_t * ak8963, uint8_t reg_addr, uint8_t * data, uint8_t length);
+int mpu9250_gy_scale(mpu9250_t * mpu9250, uint8_t scale);
+int mpu9250_acc_scale(mpu9250_t * mpu9250, uint8_t scale);
+int ak8963_mag_scale(ak8963_t * ak8963, uint8_t scale);
+int mpu9250_filter(mpu9250_t * mpu9250, uint8_t filter);
+int mpu9250_enable_int(mpu9250_t * mpu9250);
+int ak8963_data_is_rdy(ak8963_t * ak8963);
+int mpu9250_initialization(mpu9250_t * mpu9250, EUSCI_B_Type * eusci, uint32_t scl_Hz, uint8_t address);
+int ak8963_initialization(ak8963_t * ak8963, EUSCI_B_Type * eusci, uint32_t scl_Hz, uint8_t address);
+void mpu9250_gy_deg_per_s(mpu9250_t * mpu9250, const int16_t x, const int16_t y, const int16_t z);
+void mpu9250_acc_g(mpu9250_t * mpu9250, const int16_t x, const int16_t y, const int16_t z);
+int mpu9250_temp_degC(mpu9250_t * mpu9250, const int16_t temp_out);
+int ak8963_mag_uT(ak8963_t * ak8963, const int16_t x, const int16_t y, const int16_t z);
+int mpu9250_read_acc(mpu9250_t * mpu9250);
+int mpu9250_read_gy(mpu9250_t * mpu9250);
+int mpu9250_read_temp(mpu9250_t * mpu9250);
+int ak8963_read_mag(ak8963_t * ak8963);
+int mpu9250_read_all(mpu9250_t * mpu9250);
 
-#endif
+#endif /* MPU9250_H_ */
