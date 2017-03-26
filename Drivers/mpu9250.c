@@ -1,7 +1,7 @@
 /*******************************************************************************/
 /**
 *      @file : mpu9250.c
-*   @version : 0.1
+*   @version : 0.2
 *      @date : February 28, 2017
 *    @author : Enzo IGLESIS, Yonggi CHOI, Vincent MAIRE, Solene DOTHEE
 * @copyright : Copyright (c) 2017 E. IGLESIS, Y. CHOI, V. MAIRE, S. DOTHEE
@@ -311,28 +311,6 @@ int mpu9250_enable_int(mpu9250_t * mpu9250)
 
 /******************************************************************************/
 /**
-* Check if data are ready to be read on the ak8963.
-*
-* @param    ak8963 is a pointer to the ak8963_t instance
-*
-* @return   -1 if an error occurred else FALSE if data are not ready or TRUE if
-*           data are ready to be read
-*
-* @note     IIC in the mpu9250 instance must be initialize before using this
-*           function.
-*
-*******************************************************************************/
-int ak8963_data_is_rdy(ak8963_t * ak8963)
-{
-    /**/
-    uint8_t data[1];
-    /**/
-    if(ak8963_read_register(ak8963, AK8963_ST1, data, 1) == -1) return -1;
-    return (data[0]&(AK8963_MAG_DRDY|AK8963_MAG_DOR))? TRUE : FALSE;
-}
-
-/******************************************************************************/
-/**
 * Enable all the sensor of the mpu9250, with no filtering and no interruption
 *
 * @param    mpu9250 is a pointer to the mpu9250_t instance
@@ -364,9 +342,7 @@ int mpu9250_initialization(mpu9250_t * mpu9250, EUSCI_B_Type * eusci, uint32_t s
 * @return   -1 if an error occurred else 0
 *
 * @note     IIC in the ak8963 instance must be initialize before using this
-*           function. The MPU9250_BYPASS_EN bit of the MPU9250_INT_PIN_CFG
-*           register of the mpu9250 must be set before using this function.
-*           (mpu9250_initialization function set this bit)
+*           function.
 *
 *******************************************************************************/
 int ak8963_initialization(ak8963_t * ak8963, EUSCI_B_Type * eusci, uint32_t scl_Hz, uint8_t address)
@@ -374,12 +350,13 @@ int ak8963_initialization(ak8963_t * ak8963, EUSCI_B_Type * eusci, uint32_t scl_
     ak8963->iic.address = address;
     if(i2c_initialization_master(&ak8963->iic, eusci, scl_Hz) == -1) return -1;
     if(ak8963_write_register(ak8963, AK8963_CNTL2, AK8963_MAG_SRST)) return -1; /* Soft reset */
+
     return ak8963_mag_scale(ak8963, 1); /* 16 bits precision and continuous mode 2 */
 }
 
 /******************************************************************************/
 /**
-* Transform gyroscope sensor raw data to °/s
+* Transform gyroscope sensor raw data to �/s
 *
 * @param    mpu9250 is a pointer to the mpu9250_t instance
 * @param    x,y,z are the raw data of the gyroscope sensor for x, y & z axis
@@ -548,7 +525,8 @@ int mpu9250_read_temp(mpu9250_t * mpu9250)
 *
 * @param    ak8963 is a pointer to the ak8963_t instance
 *
-* @return   -1 if an error occurred else 0
+* @return   -1 if an error occurred else FALSE if data where not ready or an
+*           overflow occurred else TRUE if data are available.
 *
 * @note     The data is automatically update in the mpu9250_t instance.
 *
@@ -556,14 +534,16 @@ int mpu9250_read_temp(mpu9250_t * mpu9250)
 int ak8963_read_mag(ak8963_t * ak8963)
 {
     /* Local declaration */
-    uint8_t mag[6];
+    uint8_t mag[8];
     uint16_t x, y, z;
     /* Program statement */
-    if(ak8963_read_register(ak8963, AK8963_HXL, mag, 6) == -1) return -1;
-    x = (uint16_t)mag[1]<<8|(uint16_t)mag[0];
-    y = (uint16_t)mag[3]<<8|(uint16_t)mag[2];
-    z = (uint16_t)mag[5]<<8|(uint16_t)mag[4];
-    return ak8963_mag_uT(ak8963, x, y, z);
+    if(ak8963_read_register(ak8963, AK8963_ST1, mag, 8) == -1) return -1;
+    x = (uint16_t)mag[2]<<8|(uint16_t)mag[1];
+    y = (uint16_t)mag[4]<<8|(uint16_t)mag[3];
+    z = (uint16_t)mag[6]<<8|(uint16_t)mag[5];
+    if(ak8963_mag_uT(ak8963, x, y, z) == -1) return -1;
+    if(!(mag[0]&(AK8963_MAG_DRDY|AK8963_MAG_DOR)) || mag[7]&AK8963_MAG_HOFL) return FALSE;
+    return TRUE;
 }
 
 /******************************************************************************/
