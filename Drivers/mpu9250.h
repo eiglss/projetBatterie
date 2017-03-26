@@ -1,7 +1,7 @@
 /*******************************************************************************/
 /**
 *      @file : mpu9250.h
-*   @version : 0.1
+*   @version : 0.2
 *      @date : February 28, 2017
 *    @author : Enzo IGLESIS, Yonggi CHOI, Vincent MAIRE, Solene DOTHEE
 * @copyright : Copyright (c) 2017 E. IGLESIS, Y. CHOI, V. MAIRE, S. DOTHEE
@@ -14,6 +14,62 @@
 
 #ifndef MPU9250_H_
 #define MPU9250_H_
+
+/*******************************    EXEMPLE     *******************************/
+/* Exemple of how to use */
+/**
+#include <stdio.h>
+#include <stdlib.h>
+#include "mpu9250.h"
+
+int main(void)
+{
+    // local declaration
+    mpu9250_t mpu9250;
+    ak8963_t ak8963;
+    // Program statement
+    if(mpu9250_initialization(&mpu9250, EUSCI_B0, 100000, MPU9250_IIC) == -1)
+    {
+        printf("Failed to initialize MPU9250.\r\n");
+        return EXIT_FAILURE;
+    }
+    if(ak8963_initialization(&ak8963, EUSCI_B0, 100000, AK8963_ADDR) == -1)
+    {
+        printf("Failed to initialize MPU9250.\r\n");
+        return EXIT_FAILURE;
+    }
+    while(!0)
+    {
+        if(mpu9250_read_all(&mpu9250) == -1)
+        {
+            printf("Failed read data from MPU9250.\r\n");
+        }
+        else
+        {
+            // data have been read correctly
+        }
+        switch(ak8963_read_mag(&ak8963))
+        {
+            case TRUE:
+            {
+                // data have been read correctly
+            }
+            break;.
+            case FALSE:
+            {
+                // overflow occurred or data are not ready
+            }
+            break;
+            case -1:
+            default:
+            {
+                printf("Failed read data from AK8963.\r\n");
+            }
+        }
+    }
+    return EXIT_SUCCESS
+}
+**/
 
 /*******************************     MACROS     *******************************/
 /**** TRUE & FALSE ****/
@@ -355,9 +411,8 @@ int mpu9250_acc_scale(mpu9250_t * mpu9250, uint8_t scale);
 int ak8963_mag_scale(ak8963_t * ak8963, uint8_t scale);
 /***** FILTER *****/
 int mpu9250_filter(mpu9250_t * mpu9250, uint8_t filter);
-/**** DATA AVAILABLE ****/
+/**** INTERRUPTION ****/
 int mpu9250_enable_int(mpu9250_t * mpu9250);
-int ak8963_data_is_rdy(ak8963_t * ak8963);
 /**** INITIALIZATION ****/
 int mpu9250_initialization(mpu9250_t * mpu9250, EUSCI_B_Type * eusci, uint32_t scl_Hz, uint8_t address);
 int ak8963_initialization(ak8963_t * ak8963, EUSCI_B_Type * eusci, uint32_t scl_Hz, uint8_t address);
