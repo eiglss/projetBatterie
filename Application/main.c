@@ -11,7 +11,7 @@ int main()
     init_all_mpu(&sensors);
 
     // Test
-    T_coord_3D data_asp = {0,10,0};
+    T_coord_3D data_asp = {0,0,0};
     T_coord_3D data_acc = {0,0,1};
     T_coord_3D data_mag = {0,0,0};
     T_coord_3D angCor;
