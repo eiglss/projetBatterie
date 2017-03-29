@@ -4,9 +4,6 @@
 #define NB_OF_STORED_SAMPLES 2
 #define NB_OF_MPU 1
 
-#define SAMPLE_FREQ 1
-#define SAMPLE_TIME_S (1./SAMPLE_FREQ)
-
 #define ALPHA_PARAM 0.98
 
 typedef struct
@@ -16,14 +13,25 @@ typedef struct
     float z;
 } T_coord_3D;
 
+
+/*
+* asp : angular speed (vitesse angulaire) [°/s]
+* ang : angle [°]
+* spe : vitesse [m/s]
+* acc : acceleration lineaire [m/s²]
+* aca : acceleration angulaire [°/s²]
+* mag : magnetometre [°]
+*/
 typedef struct
 {
-    T_coord_3D pos[NB_OF_STORED_SAMPLES];
     T_coord_3D asp[NB_OF_STORED_SAMPLES];
     T_coord_3D ang[NB_OF_STORED_SAMPLES];
     T_coord_3D spe[NB_OF_STORED_SAMPLES];
     T_coord_3D acc[NB_OF_STORED_SAMPLES];
+    T_coord_3D aca[NB_OF_STORED_SAMPLES];
+    T_coord_3D mag[NB_OF_STORED_SAMPLES];
 } T_mpu_infos;
+
 
 typedef struct
 {
