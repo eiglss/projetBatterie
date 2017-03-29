@@ -13,20 +13,23 @@ void init_all_mpu (T_sensors *p_sensors)
             p_sensors->mpu[i].asp[j].x = 0;
             p_sensors->mpu[i].asp[j].y = 0;
             p_sensors->mpu[i].asp[j].z = 0;
-            p_sensors->mpu[i].pos[j].x = 0;
-            p_sensors->mpu[i].pos[j].y = 0;
-            p_sensors->mpu[i].pos[j].z = 0;
             p_sensors->mpu[i].ang[j].x = 0;
             p_sensors->mpu[i].ang[j].y = 0;
             p_sensors->mpu[i].ang[j].z = 0;
             p_sensors->mpu[i].spe[j].x = 0;
             p_sensors->mpu[i].spe[j].y = 0;
             p_sensors->mpu[i].spe[j].z = 0;
+            p_sensors->mpu[i].aca[j].x = 0;
+            p_sensors->mpu[i].aca[j].y = 0;
+            p_sensors->mpu[i].aca[j].z = 0;
+            p_sensors->mpu[i].mag[j].x = 0;
+            p_sensors->mpu[i].mag[j].y = 0;
+            p_sensors->mpu[i].mag[j].z = 0;
         }
     }
 }
 
-void get_mpu_asp_acc (T_mpu_infos *p_mpu, T_coord_3D p_raw_asp, T_coord_3D p_raw_acc)
+void get_mpu_asp_acc_mag (T_mpu_infos *p_mpu, T_coord_3D p_raw_asp, T_coord_3D p_raw_acc, T_coord_3D p_raw_mag)
 {
     p_mpu->asp[0].x = p_raw_asp.x;
     p_mpu->asp[0].y = p_raw_asp.y;
@@ -34,6 +37,9 @@ void get_mpu_asp_acc (T_mpu_infos *p_mpu, T_coord_3D p_raw_asp, T_coord_3D p_raw
     p_mpu->acc[0].x = p_raw_acc.x;
     p_mpu->acc[0].y = p_raw_acc.y;
     p_mpu->acc[0].z = p_raw_acc.z;
+    p_mpu->mag[0].x = p_raw_mag.x;
+    p_mpu->mag[0].y = p_raw_mag.y;
+    p_mpu->mag[0].z = p_raw_mag.z;
 }
 
 void update_next_sample (T_mpu_infos *p_mpu)
@@ -44,8 +50,9 @@ void update_next_sample (T_mpu_infos *p_mpu)
         p_mpu->acc[i] = p_mpu->acc[i-1];
         p_mpu->asp[i] = p_mpu->asp[i-1];
         p_mpu->ang[i] = p_mpu->ang[i-1];
-        p_mpu->pos[i] = p_mpu->pos[i-1];
         p_mpu->spe[i] = p_mpu->spe[i-1];
+        p_mpu->aca[i] = p_mpu->aca[i-1];
+        p_mpu->mag[i] = p_mpu->mag[i-1];
     }
 }
 
@@ -95,19 +102,9 @@ void compute_angle (T_mpu_infos *p_mpu, float p_sample_time_s)
     acc_angle.x = atan(-p_mpu->acc[0].x/sqrt(pow(p_mpu->acc[0].y, 2) + pow(p_mpu->acc[0].z, 2))) * 180./M_PI;
     acc_angle.y = atan2(p_mpu->acc[0].y , p_mpu->acc[0].z) * 180./M_PI;
 
-    //acc_angle.x = atan(p_mpu->acc[0].x/sqrt(pow(p_mpu->acc[0].y, 2) + pow(p_mpu->acc[0].z, 2))) * 180./M_PI;
-    //acc_angle.y = atan(p_mpu->acc[0].y/sqrt(pow(p_mpu->acc[0].x, 2) + pow(p_mpu->acc[0].z, 2))) * 180./M_PI;
-    //acc_angle.z = atan(sqrt(pow(p_mpu->acc[0].y, 2) + pow(p_mpu->acc[0].x, 2)) / p_mpu->acc[0].z) * 180./M_PI;;
-
-    T_coord_3D null_coord = {0,0,0};
-    gyr_angle = add_coord_3D(null_coord, scalar_time_coord_3D(p_mpu->asp[0], p_sample_time_s));
-    gyr_angle = add_coord_3D(gyr_angle, p_mpu->ang[1]);
+    gyr_angle = add_coord_3D(scalar_time_coord_3D(p_mpu->asp[0], p_sample_time_s), p_mpu->ang[1]);
 
     p_mpu->ang[0] = add_coord_3D(scalar_time_coord_3D(gyr_angle, ALPHA_PARAM), scalar_time_coord_3D(acc_angle, 1 - ALPHA_PARAM));
-}
-
-void compute_position (T_mpu_infos *p_mpu)
-{
 }
 
 void compute_mpu_infos (T_sensors *p_sensors, T_coord_3D data_asp, T_coord_3D data_acc, T_coord_3D data_mag, float p_sample_time_s)
@@ -117,11 +114,9 @@ void compute_mpu_infos (T_sensors *p_sensors, T_coord_3D data_asp, T_coord_3D da
     {
         update_next_sample (&p_sensors->mpu[i]);
 
-        get_mpu_asp_acc (&p_sensors->mpu[i], data_asp, data_acc);
+        get_mpu_asp_acc_mag (&p_sensors->mpu[i], data_asp, data_acc, data_mag);
 
         compute_angle(&p_sensors->mpu[i], p_sample_time_s);
-
-        //compute_position (&p_sensors->mpu[i]);
     }
 }
 
