@@ -4,6 +4,9 @@
 #define NB_OF_STORED_SAMPLES 2
 #define NB_OF_MPU 1
 
+#define MIN_ACA_TAPPING_CAPTURE 50000
+#define MIN_TIME_MS_LAST_TAP 10
+
 #define ALPHA_PARAM 0.98
 
 typedef struct
