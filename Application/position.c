@@ -107,6 +107,20 @@ void compute_angle (T_mpu_infos *p_mpu, float p_sample_time_s)
     p_mpu->ang[0] = add_coord_3D(scalar_time_coord_3D(gyr_angle, ALPHA_PARAM), scalar_time_coord_3D(acc_angle, 1 - ALPHA_PARAM));
 }
 
+// Retourne 1 si une frappe est détéctée, 0 sinon
+unsigned char tapping_capture (T_mpu_infos *p_mpu)
+{
+    static int time_ms_last_tap = 0;
+    unsigned char result = 0;
+
+    if (p_mpu->aca[0].x > MIN_ACA_TAPPING_CAPTURE && time_ms_last_tap > MIN_TIME_MS_LAST_TAP)
+    {
+        result = 1;
+        time_ms_last_tap = 0;
+    }
+    return result;
+}
+
 void compute_mpu_infos (T_sensors *p_sensors, T_coord_3D data_asp, T_coord_3D data_acc, T_coord_3D data_mag, float p_sample_time_s)
 {
     int i = 0;
