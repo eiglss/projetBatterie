@@ -9,8 +9,8 @@
 *******************************************************************************/
 
 /*******************************    LIBRARYS    *******************************/
-#include "msp432p401r.h"
-#include "i2c.h"
+#include <stdint.h>
+#include "iic.h"
 
 #ifndef MPU9250_H_
 #define MPU9250_H_
@@ -20,20 +20,23 @@
 /**
 #include <stdio.h>
 #include <stdlib.h>
-#include "mpu9250.h"
+#include "platform.h"
+#include "drivers/mpu9250.h"
 
 int main(void)
 {
     // local declaration
     mpu9250_t mpu9250;
     ak8963_t ak8963;
+    // initialization
+    init_platform();
     // Program statement
-    if(mpu9250_initialization(&mpu9250, EUSCI_B0, 100000, MPU9250_IIC) == -1)
+    if(mpu9250_initialization(&mpu9250, IIC_0, MPU9250_IIC) == -1)
     {
         printf("Failed to initialize MPU9250.\r\n");
         return EXIT_FAILURE;
     }
-    if(ak8963_initialization(&ak8963, EUSCI_B0, 100000, AK8963_ADDR) == -1)
+    if(ak8963_initialization(&ak8963, IIC_0, AK8963_ADDR) == -1)
     {
         printf("Failed to initialize MPU9250.\r\n");
         return EXIT_FAILURE;
@@ -54,7 +57,7 @@ int main(void)
             {
                 // data have been read correctly
             }
-            break;.
+            break;
             case FALSE:
             {
                 // overflow occurred or data are not ready
@@ -67,7 +70,8 @@ int main(void)
             }
         }
     }
-    return EXIT_SUCCESS
+    cleanup_platform();
+    return EXIT_SUCCESS;
 }
 **/
 
@@ -79,6 +83,32 @@ int main(void)
 #endif
 #ifndef TRUE
     #define TRUE (!FALSE)
+#endif
+
+/**** BITS ****/
+#ifndef BIT0
+	#define BIT0	0x01
+#endif
+#ifndef BIT1
+	#define BIT1	0x02
+#endif
+#ifndef BIT2
+	#define BIT2	0x04
+#endif
+#ifndef BIT3
+	#define BIT3	0x08
+#endif
+#ifndef BIT4
+	#define BIT4	0x10
+#endif
+#ifndef BIT5
+	#define BIT5	0x20
+#endif
+#ifndef BIT6
+	#define BIT6	0x40
+#endif
+#ifndef BIT7
+	#define BIT7	0x80
 #endif
 
 /**** IIC ADDRESS ****/
@@ -373,26 +403,26 @@ typedef struct
 typedef struct
 {
     /* iic */
-    i2c_slave_t iic;
+	axi_iic_t * iic;
+	uint8_t     address : 7;
     /* Gyroscope Features */
     uint8_t  gy_full_scale      : 2;
-    uint8_t  gy_low_pass_filter : 3;
-    axi_3d_t gy_data; /* Â°/s */
+    axi_3d_t gy; /* °/s */
     /* Accelerometer Features */
     uint8_t  acc_full_scale      : 2;
-    uint8_t  acc_low_pass_filter : 3;
-    axi_3d_t acc_data; /* g */
+    axi_3d_t acc; /* g */
     /* Additional Features */
-    float    temp_data; /* Â°C */
+    float    temp_data; /* °C */
 }mpu9250_t;
 
 typedef struct
 {
     /* iic */
-    i2c_slave_t iic;
+	axi_iic_t * iic;
+	uint8_t     address : 7;
     /* Magnetometer Features */
     uint8_t  mag_full_scale : 1; /* 0: 14 bits precision; 1: 16 bits precision */
-    axi_3d_t mag_data; /* ÂµT */
+    axi_3d_t mag; /* µT */
 }ak8963_t;
 
 /*******************************   FUNCTIONS    *******************************/
@@ -414,8 +444,8 @@ int mpu9250_filter(mpu9250_t * mpu9250, uint8_t filter);
 /**** INTERRUPTION ****/
 int mpu9250_enable_int(mpu9250_t * mpu9250);
 /**** INITIALIZATION ****/
-int mpu9250_initialization(mpu9250_t * mpu9250, EUSCI_B_Type * eusci, uint32_t scl_Hz, uint8_t address);
-int ak8963_initialization(ak8963_t * ak8963, EUSCI_B_Type * eusci, uint32_t scl_Hz, uint8_t address);
+int mpu9250_initialization(mpu9250_t * mpu9250, axi_iic_t * iic, uint8_t address);
+int ak8963_initialization(ak8963_t * ak8963, axi_iic_t * iic, uint8_t address);
 /**** CONVERSIONS ****/
 void mpu9250_gy_deg_per_s(mpu9250_t * mpu9250, const int16_t x, const int16_t y, const int16_t z);
 void mpu9250_acc_g(mpu9250_t * mpu9250, const int16_t x, const int16_t y, const int16_t z);
