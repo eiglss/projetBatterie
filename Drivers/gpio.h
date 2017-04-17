@@ -22,7 +22,6 @@
 #define GPIO_2  (axi_gpio_t *)XPAR_GPIO_2_BASEADDR
 #define GPIO_3  (axi_gpio_t *)XPAR_GPIO_3_BASEADDR
 
-#define GPIO_LED			GPIO_0
 #define GPIO_SW				GPIO_1
 #define GPIO_BTN			GPIO_2
 #define GPIO_MPU9250_INT	GPIO_3
