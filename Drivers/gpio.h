@@ -18,9 +18,9 @@
 /*******************************     MACROS     *******************************/
 /**** GPIO ****/
 #define GPIO_0  (axi_gpio_t *)XPAR_GPIO_0_BASEADDR
-#define GPIO_1  (axi_gpio_t *)XPAR_GPIO_0_BASEADDR
-#define GPIO_2  (axi_gpio_t *)XPAR_GPIO_0_BASEADDR
-#define GPIO_3  (axi_gpio_t *)XPAR_GPIO_0_BASEADDR
+#define GPIO_1  (axi_gpio_t *)XPAR_GPIO_1_BASEADDR
+#define GPIO_2  (axi_gpio_t *)XPAR_GPIO_2_BASEADDR
+#define GPIO_3  (axi_gpio_t *)XPAR_GPIO_3_BASEADDR
 
 #define GPIO_LED			GPIO_0
 #define GPIO_SW				GPIO_1
@@ -62,10 +62,10 @@ inline void gpio_tri_dir(axi_gpio_t * axi, uint32_t value);
 inline void gpio_tri_output(axi_gpio_t * axi, uint32_t value);
 inline void gpio_tri_input(axi_gpio_t * axi, uint32_t value);
     /**** GPIO Interrupt ****/
-inline void gpio_interrupt_enbale(axi_gpio_t * axi, uint8_t value);
-inline void gpio_interrupt_disable(axi_gpio_t * axi, uint8_t value);
+inline void gpio_interrupt_enbale(axi_gpio_t * axi);
+inline void gpio_interrupt_disable(axi_gpio_t * axi);
 inline uint32_t gpio_interrupt_status(axi_gpio_t * axi);
-inline void gpio_interrupt_clear(axi_gpio_t * axi, uint32_t value);
+inline void gpio_interrupt_clear(axi_gpio_t * axi);
     /**** GPIO R/W ****/
 inline void gpio_write(axi_gpio_t * axi, uint32_t value);
 inline void gpio_set(axi_gpio_t * axi, uint32_t value);
@@ -78,10 +78,10 @@ inline void gpio2_tri_dir(axi_gpio_t * axi, uint32_t value);
 inline void gpio2_tri_output(axi_gpio_t * axi, uint32_t value);
 inline void gpio2_tri_input(axi_gpio_t * axi, uint32_t value);
     /**** GPIO Interrupt ****/
-inline void gpio2_interrupt_enbale(axi_gpio_t * axi, uint8_t value);
-inline void gpio2_interrupt_disable(axi_gpio_t * axi, uint8_t value);
+inline void gpio2_interrupt_enbale(axi_gpio_t * axi);
+inline void gpio2_interrupt_disable(axi_gpio_t * axi);
 inline uint32_t gpio2_interrupt_status(axi_gpio_t * axi);
-inline void gpio2_interrupt_clear(axi_gpio_t * axi, uint8_t value);
+inline void gpio2_interrupt_clear(axi_gpio_t * axi);
     /**** GPIO R/W ****/
 inline void gpio2_write(axi_gpio_t * axi, uint32_t value);
 inline void gpio2_set(axi_gpio_t * axi, uint32_t value);
