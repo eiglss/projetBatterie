@@ -165,5 +165,6 @@ typedef struct
 /*******************************   FUNCTIONS    *******************************/
 uint8_t iic_write(axi_iic_t * axi, uint8_t address, uint8_t * data, uint8_t length);
 uint8_t iic_read(axi_iic_t * axi, uint8_t address, uint8_t * data, uint8_t length);
+inline int iic_bus_is_busy(axi_iic_t * axi);
 
 #endif
