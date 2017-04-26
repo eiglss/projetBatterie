@@ -5,7 +5,7 @@
 #include "position.h"
 #include "vector_tools.h"
 
-int main()
+int main2()
 {
     T_sensors sensors;
     init_all_mpu(&sensors);

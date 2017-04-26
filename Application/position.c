@@ -1,7 +1,32 @@
+#include <stdio.h>
 #include "position.h"
+#include "Drivers/mpu9250.h"
+
+unsigned char test_tap;
+
+static mpu9250_t mpu9250;
+static ak8963_t ak8963;
+
+void read_all(T_coord_3D *p_data_acc, T_coord_3D *p_data_asp, T_coord_3D *p_data_mag)
+{
+	mpu9250_read_all(&mpu9250);
+	p_data_acc->x = mpu9250.acc.x;
+	p_data_acc->y = mpu9250.acc.y;
+	p_data_acc->z = mpu9250.acc.z;
+	p_data_asp->x = mpu9250.gy.x;
+	p_data_asp->y = mpu9250.gy.y;
+	p_data_asp->z = mpu9250.gy.z;
+	ak8963_read_mag(&ak8963);
+	p_data_mag->x = ak8963.mag.x;
+	p_data_mag->y = ak8963.mag.y;
+	p_data_mag->z = ak8963.mag.z;
+}
 
 void init_all_mpu (T_sensors *p_sensors)
 {
+	if(mpu9250_initialization(&mpu9250, IIC_0, MPU9250_IIC) == -1)
+		printf("BITE \n");
+	ak8963_initialization(&ak8963, IIC_0, AK8963_ADDR);
     int i, j;
     for (i=0;i<NB_OF_MPU;i++)
     {
@@ -107,7 +132,7 @@ void compute_angle (T_mpu_infos *p_mpu, float p_sample_time_s)
     p_mpu->ang[0] = add_coord_3D(scalar_time_coord_3D(gyr_angle, ALPHA_PARAM), scalar_time_coord_3D(acc_angle, 1 - ALPHA_PARAM));
 }
 
-// Retourne 1 si une frappe est détéctée, 0 sinon
+// Retourne 1 si une frappe est detectee, 0 sinon
 unsigned char tapping_capture (T_mpu_infos *p_mpu)
 {
     static int time_ms_last_tap = 0;
@@ -131,6 +156,8 @@ void compute_mpu_infos (T_sensors *p_sensors, T_coord_3D data_asp, T_coord_3D da
         get_mpu_asp_acc_mag (&p_sensors->mpu[i], data_asp, data_acc, data_mag);
 
         compute_angle(&p_sensors->mpu[i], p_sample_time_s);
+
+        test_tap = tapping_capture (&p_sensors->mpu[i]);
     }
 }
 
