@@ -24,9 +24,11 @@ void read_all(T_coord_3D *p_data_acc, T_coord_3D *p_data_asp, T_coord_3D *p_data
 
 void init_all_mpu (T_sensors *p_sensors)
 {
-	if(mpu9250_initialization(&mpu9250, IIC_0, MPU9250_IIC) == -1)
-		printf("BITE \n");
+    // Init des MPU
+	mpu9250_initialization(&mpu9250, IIC_0, MPU9250_IIC);
 	ak8963_initialization(&ak8963, IIC_0, AK8963_ADDR);
+
+
     int i, j;
     for (i=0;i<NB_OF_MPU;i++)
     {
@@ -122,6 +124,7 @@ T_coord_3D saturator_angle (T_coord_3D p_angle)
 
 void compute_angle (T_mpu_infos *p_mpu, float p_sample_time_s)
 {
+    // Calcul de l'angle
     T_coord_3D gyr_angle, acc_angle;
 
     acc_angle.x = atan(-p_mpu->acc[0].x/sqrt(pow(p_mpu->acc[0].y, 2) + pow(p_mpu->acc[0].z, 2))) * 180./M_PI;
@@ -130,6 +133,11 @@ void compute_angle (T_mpu_infos *p_mpu, float p_sample_time_s)
     gyr_angle = add_coord_3D(scalar_time_coord_3D(p_mpu->asp[0], p_sample_time_s), p_mpu->ang[1]);
 
     p_mpu->ang[0] = add_coord_3D(scalar_time_coord_3D(gyr_angle, ALPHA_PARAM), scalar_time_coord_3D(acc_angle, 1 - ALPHA_PARAM));
+
+
+    // Calcul de l'acceleration angulaire (derivee de la vitesse angulaire)
+    // Operation : accel_angulaire = vitesse_angulaire - vitesse_angulaire_prec) / T_echantillonage
+    p_mpu->aca[0] = scalar_time_coord_3D(add_coord_3D(scalar_time_coord_3D(p_mpu->asp[1], -1) , p_mpu->asp[0]) , 1./p_sample_time_s);
 }
 
 // Retourne 1 si une frappe est detectee, 0 sinon
