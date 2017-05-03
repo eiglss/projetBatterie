@@ -63,9 +63,9 @@
 /*******************************     TYPES      *******************************/
 typedef struct
 {
-    uint32_t TCSR0          /* Timer 0 Control and Status Register */
-    uint32_t TLR0           /* Timer 0 Load Register */
-    uint32_t TCR0           /* Timer 0 Counter Register */
+    uint32_t TCSR0;         /* Timer 0 Control and Status Register */
+    uint32_t TLR0;          /* Timer 0 Load Register */
+    uint32_t TCR0;          /* Timer 0 Counter Register */
     uint32_t RESERVED0[2];
     uint32_t TCSR1;         /* Timer 1 Control and Status Register */
     uint32_t TLR1;          /* Timer 1 Load Register */
