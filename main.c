@@ -25,21 +25,24 @@ int main(void)
     printf("Hello world!\n");
 
     /* Program statement */
-    int i = 1000;
+    int i = 0;
 
     while (!0)
     {
     	read_all(&data_asp, &data_acc, &data_mag);
-        compute_mpu_infos (&sensors, data_asp, data_acc, data_mag, 0.0005);
+        compute_mpu_infos (&sensors, data_asp, data_acc, data_mag, 0.00001);
         //printf("ACC : %f \n", data_acc.x);
+        //printf("ACA : %f \n", sensors.mpu[0].aca[0].x);
+
         if(test_tap)
+        	i = 1000000;
+        if(i > 0)
         {
+        	led_write(1);
         	i --;
-        	led_write(LED1);
         }
         else
         {
-        	i = 1000;
         	led_write(0);
         }
     }
