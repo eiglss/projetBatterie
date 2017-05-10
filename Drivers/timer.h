@@ -17,7 +17,7 @@
 
 /*******************************     MACROS     *******************************/
 /**** TIMER ****/
-#define TIMER_0 (axi_timer_t *)XPAR_AXI_TIMER_0_BASEADDR
+#define TIMER_0 (axi_timer_t *)XPAR_TMRCTR_0_BASEADDR
 
 /**** TCSR0 ****/
 /* [31:12] Reserved */
@@ -64,6 +64,8 @@
 #define TIMER_UP		0		/* timer/counter up */
 #define TIMER_DOWN		!UP		/* timer/counter down */
 
+#define timer_second(tick)	((tick)/100000000.)
+
 /*******************************     TYPES      *******************************/
 typedef struct
 {
@@ -78,5 +80,10 @@ typedef struct
 }axi_timer_t;
 
 /*******************************   FUNCTIONS    *******************************/
+void timer_start(axi_timer_t * timer);
+inline double timer_read(axi_timer_t * timer);
+inline void timer_pause(axi_timer_t * timer);
+double timer_stop(axi_timer_t * timer);
+double timer_restart(axi_timer_t * timer);
 
 #endif /* TIMER_H_ */

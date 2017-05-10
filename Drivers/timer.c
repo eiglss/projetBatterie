@@ -13,12 +13,44 @@
 #include "timer.h"
 #include "xtmrctr.h"
 /*******************************   FUNCTIONS    *******************************/
+XTmrCtr TimerCounter;
+
 /**** Generate Mode ****/
-void timer_start(axi_timer_t *timer, uint32_t value)
+void timer_start(axi_timer_t * timer)
 {
-	timer->TCSR0 &= ~TIMER_TCSR0_ENT0;
-	timer->TCSR0 &= ~TIMER_TCSR0_UDT0;	/* up mode */
-	timer->TCSR0 &= ~TIMER_TCSR0_ARHT0;
-	timer->TLR0 = value;
-	timer->TCSR0 |= TIMER_TCSR0_LOAD0;
+	XTmrCtr *TmrCtrInstancePtr = &TimerCounter;
+	XTmrCtr_Initialize(TmrCtrInstancePtr, XPAR_TMRCTR_0_DEVICE_ID);
+	XTmrCtr_SetOptions(TmrCtrInstancePtr, XPAR_TMRCTR_0_DEVICE_ID, 0);
+	XTmrCtr_Start(TmrCtrInstancePtr, XPAR_TMRCTR_0_DEVICE_ID);
 }
+
+inline double timer_read(axi_timer_t * timer)
+{
+	return timer_second(XTmrCtr_GetValue(&TimerCounter, XPAR_TMRCTR_0_DEVICE_ID));
+}
+
+inline void timer_pause(axi_timer_t * timer)
+{
+	XTmrCtr_Stop(&TimerCounter, XPAR_TMRCTR_0_DEVICE_ID);
+}
+
+double timer_stop(axi_timer_t * timer)
+{
+	double value;
+	value = timer_second(XTmrCtr_GetValue(&TimerCounter, XPAR_TMRCTR_0_DEVICE_ID));
+	XTmrCtr_Reset(&TimerCounter, XPAR_TMRCTR_0_DEVICE_ID);
+	return value;
+}
+
+double timer_restart(axi_timer_t * timer)
+{
+	double value;
+	value = timer_second(XTmrCtr_GetValue(&TimerCounter, XPAR_TMRCTR_0_DEVICE_ID));
+	timer_stop(timer);
+	XTmrCtr_Reset(&TimerCounter, XPAR_TMRCTR_0_DEVICE_ID);
+	XTmrCtr_Initialize(&TimerCounter, XPAR_TMRCTR_0_DEVICE_ID);
+	XTmrCtr_SetOptions(&TimerCounter, XPAR_TMRCTR_0_DEVICE_ID, 0);
+	XTmrCtr_Start(&TimerCounter, XPAR_TMRCTR_0_DEVICE_ID);
+	return value;
+}
+
