@@ -149,7 +149,7 @@ unsigned char tapping_capture (T_mpu_infos *p_mpu)
     if (p_mpu->aca[0].x > MIN_ACA_TAPPING_CAPTURE/* && time_ms_last_tap > MIN_TIME_MS_LAST_TAP*/)
     {
         result = 1;
-        time_ms_last_tap = 0;
+        //time_ms_last_tap = 0;
     }
     return result;
 }

@@ -4,6 +4,7 @@
 #include "Drivers/mpu9250.h"
 #include "Drivers/led.h"
 #include "Drivers/switch.h"
+#include "Drivers/timer.h"
 #include "Application/definitions.h"
 #include "Application/position.h"
 #include "Application/vector_tools.h"
