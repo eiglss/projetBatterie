@@ -16,10 +16,13 @@ void read_all(T_coord_3D *p_data_acc, T_coord_3D *p_data_asp, T_coord_3D *p_data
 	p_data_asp->x = mpu9250.gy.x;
 	p_data_asp->y = mpu9250.gy.y;
 	p_data_asp->z = mpu9250.gy.z;
+
+	int pleine_echelle_mag = 1;
+	int offset_mag = 100;
 	ak8963_read_mag(&ak8963);
-	p_data_mag->x = ak8963.mag.x;
-	p_data_mag->y = ak8963.mag.y;
-	p_data_mag->z = ak8963.mag.z;
+	p_data_mag->x = (((ak8963.mag.x + offset_mag)/pleine_echelle_mag) * 180);
+	p_data_mag->y = (((ak8963.mag.y + offset_mag)/pleine_echelle_mag) * 180);
+	p_data_mag->z = (((ak8963.mag.z + offset_mag)/pleine_echelle_mag) * 180);
 }
 
 void init_all_mpu (T_sensors *p_sensors)
@@ -132,12 +135,12 @@ void compute_angle (T_mpu_infos *p_mpu, float p_sample_time_s)
 
     acc_angle.x = atan2(p_mpu->acc[0].y , p_mpu->acc[0].z) * 180./M_PI;
     acc_angle.y = atan2(p_mpu->acc[0].x , p_mpu->acc[0].z) * 180./M_PI;
+    acc_angle.z = p_mpu->mag[0].y;
 
     gyr_angle = add_coord_3D(scalar_time_coord_3D(p_mpu->asp[0], p_sample_time_s/2.), p_mpu->ang[1]);
 
     p_mpu->ang[0] = add_coord_3D(scalar_time_coord_3D(gyr_angle, ALPHA_PARAM), scalar_time_coord_3D(acc_angle, 1 - ALPHA_PARAM));
-    p_mpu->ang[0].z = p_mpu->mag[0].y;
-
+    //p_mpu->ang[0].z = p_mpu->mag[0].y;
 
     // Calcul de l'acceleration angulaire (derivee de la vitesse angulaire)
     // Operation : accel_angulaire = (vitesse_angulaire - vitesse_angulaire_prec) / T_echantillonage
@@ -157,6 +160,59 @@ unsigned char tapping_capture (T_mpu_infos *p_mpu, float p_sample_time_s)
         time_ms_last_tap = 0;
     }
     return result;
+}
+
+int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
+{
+	int calibration_necessaire = 0;
+	int ok;
+	int i, j;
+	float norm_speed;
+	static int nb_passages[NB_OF_MPU];
+	static int left_toms[NB_OF_MPU];
+
+	if(init)
+	{
+	    for (i=0;i<NB_OF_MPU;i++)
+	    {
+	    	nb_passages[i] = 0;
+	    	left_toms[i] = p_nb_toms;
+	    }
+	}
+	else
+    {
+		for (i=0;i<NB_OF_MPU;i++)
+		{
+			norm_speed = sqrt(pow(p_sensors->mpu[i].asp[0].x,2) + pow(p_sensors->mpu[i].asp[0].y,2) + pow(p_sensors->mpu[i].asp[0].z,2));
+			if(norm_speed < 10)
+				nb_passages[i] ++;
+			else
+				nb_passages[i] = 0;
+
+			if(nb_passages[i] >= 1000 && left_toms[i] > 0)
+			{
+				ok = 1;
+				for(j = 0 ; j < left_toms[i] ; j++)
+				{
+					if (sqrt(pow(p_sensors->mpu[i].tab_toms[j].x - p_sensors->mpu[i].ang[0].z,2)) < 10)
+					{
+						ok = 0;
+						nb_passages[i] = 0; // Trop proches (< 10°)
+						break;
+					}
+				}
+				if (ok)
+				{
+					nb_passages[i] = 0;
+					left_toms[i]--;
+					p_sensors->mpu[i].tab_toms[left_toms[i]].x = p_sensors->mpu[i].ang[0].z;
+				}
+			}
+			if(left_toms[i]>0)
+				calibration_necessaire = 1;
+		}
+    }
+	return calibration_necessaire;
 }
 
 void compute_mpu_infos (T_sensors *p_sensors, T_coord_3D data_asp, T_coord_3D data_acc, T_coord_3D data_mag)
