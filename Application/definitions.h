@@ -4,10 +4,10 @@
 #define NB_OF_STORED_SAMPLES 2
 #define NB_OF_MPU 1
 
-#define MIN_ACA_TAPPING_CAPTURE 50000
-#define MIN_TIME_MS_LAST_TAP 10
+#define MIN_ACA_TAPPING_CAPTURE 300000
+#define MIN_TIME_LAST_TAP 0.1 // 5ms
 
-#define ALPHA_PARAM 0.98
+#define ALPHA_PARAM 0.7
 
 typedef struct
 {
@@ -18,12 +18,12 @@ typedef struct
 
 
 /*
-* asp : angular speed (vitesse angulaire) [°/s]
-* ang : angle [°]
+* asp : angular speed (vitesse angulaire) [ï¿½/s]
+* ang : angle [ï¿½]
 * spe : vitesse [m/s]
-* acc : acceleration lineaire [m/s²]
-* aca : acceleration angulaire [°/s²]
-* mag : magnetometre [°]
+* acc : acceleration lineaire [m/sï¿½]
+* aca : acceleration angulaire [ï¿½/sï¿½]
+* mag : magnetometre [ï¿½]
 */
 typedef struct
 {

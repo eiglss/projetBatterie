@@ -24,23 +24,49 @@ int main(void)
 
     /* initialization */
     init_platform();
-    init_all_mpu(&sensors);
-    timer_start(TIMER_0);
 
+    timer_start(TIMER_0);
+    printf("Timer OK!\n");
+
+    init_all_mpu(&sensors);
     printf("MPU Connected!\n");
+
+    printf("Lancement!\n");
 
     /* Program statement */
     int i = 0;
-
+    int j = 0;
     while (!0)
     {
-    	read_all(&data_asp, &data_acc, &data_mag);
+    	read_all(&data_acc, &data_asp, &data_mag);
         compute_mpu_infos (&sensors, data_asp, data_acc, data_mag);
         //printf("ACC : %f \n", data_acc.x);
-        //printf("ACA : %f \n", sensors.mpu[0].aca[0].x);
-
+        //printf("%f \n", sensors.mpu[0].aca[0].x);
+        printf("%f, %f, %f \n", sensors.mpu[0].ang[0].x, sensors.mpu[0].ang[0].y, sensors.mpu[0].ang[0].z);
         if(test_tap)
-        	i = 1000000;
+        {
+        	i = 100;
+        	//printf("%f\n", sensors.mpu[0].ang[0].x);
+        	/*if(sensors.mpu[0].ang[0].z > -100 && sensors.mpu[0].ang[0].z < -25)
+        	{
+        		print("1\n");
+        	}
+        	else if(sensors.mpu[0].ang[0].z > -25 && sensors.mpu[0].ang[0].z < 50)
+        	{
+        		print("2\n");
+        	}
+        	else if(sensors.mpu[0].ang[0].z > 50 && sensors.mpu[0].ang[0].z < 125)
+        	{
+        		print("3\n");
+        	}
+        	else
+        	{
+        		print("aucun\n");
+        	}*/
+
+        	j++;
+        }
+
         if(i > 0)
         {
         	led_write(1);

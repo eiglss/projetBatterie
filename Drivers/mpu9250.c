@@ -201,7 +201,7 @@ int ak8963_read_register(ak8963_t * ak8963, uint8_t reg_addr, uint8_t * data, ui
 * Configure the precision of the gyroscope
 *
 * @param    mpu9250 is a pointer to the mpu9250_t instance
-* @param    scale the precision to be setting (0: +/-250°/s; 1: +/-4g; 2: +/-8g
+* @param    scale the precision to be setting (0: +/-250ï¿½/s; 1: +/-4g; 2: +/-8g
 *           3: +/-16g)
 *
 * @return   -1 if an error occurred else 0
@@ -247,7 +247,7 @@ int mpu9250_acc_scale(mpu9250_t * mpu9250, uint8_t scale)
 *
 * @note     IIC in the ak8963 instance must be initialize before using this
 *           function. The continuous mode 2 is configured after using this
-*           function. 14 bits correspond to 0.6 µT/LSB and 16 bits to 0.15µT/LSB
+*           function. 14 bits correspond to 0.6 ï¿½T/LSB and 16 bits to 0.15ï¿½T/LSB
 *
 *******************************************************************************/
 int ak8963_mag_scale(ak8963_t * ak8963, uint8_t scale)
@@ -271,7 +271,8 @@ int ak8963_mag_scale(ak8963_t * ak8963, uint8_t scale)
 *******************************************************************************/
 int mpu9250_filter(mpu9250_t * mpu9250, uint8_t filter)
 {
-    return mpu9250_write_register(mpu9250, MPU9250_CONFIG, MPU9250_DLPF_CFG&filter);
+    if(mpu9250_write_register(mpu9250, MPU9250_CONFIG, MPU9250_DLPF_CFG&filter) == -1) return -1;
+    return mpu9250_write_register(mpu9250, MPU9250_GYRO_CONFIG, MPU9250_FCHOICE_B);
 }
 
 /******************************************************************************/
@@ -310,9 +311,9 @@ int mpu9250_initialization(mpu9250_t * mpu9250, axi_iic_t * iic, uint8_t address
     mpu9250->address = address;
     if(mpu9250_write_register(mpu9250, MPU9250_PWR_MGMT_1, 0) == -1) return -1;
     if(mpu9250_write_register(mpu9250, MPU9250_CONFIG, 0) == -1) return -1;
-    if(mpu9250_gy_scale(mpu9250, 0) == -1) return -1;
+    if(mpu9250_gy_scale(mpu9250, 3) == -1) return -1;
     if(mpu9250_acc_scale(mpu9250, 0) == -1) return -1;
-    if(mpu9250_filter(mpu9250, 0) == -1) return -1;
+    if(mpu9250_filter(mpu9250, 5) == -1) return -1;
     return mpu9250_write_register(mpu9250, MPU9250_INT_PIN_CFG, MPU9250_BYPASS_EN); /* allow access to ak8963 */
 }
 
@@ -338,7 +339,7 @@ int ak8963_initialization(ak8963_t * ak8963, axi_iic_t * iic, uint8_t address)
 
 /******************************************************************************/
 /**
-* Transform gyroscope sensor raw data to °/s
+* Transform gyroscope sensor raw data to ï¿½/s
 *
 * @param    mpu9250 is a pointer to the mpu9250_t instance
 * @param    x,y,z are the raw data of the gyroscope sensor for x, y & z axis
@@ -395,7 +396,7 @@ void mpu9250_acc_g(mpu9250_t * mpu9250, const int16_t x, const int16_t y, const 
 *******************************************************************************/
 int mpu9250_temp_degC(mpu9250_t * mpu9250, const int16_t temp_out)
 {
-    if(in_range(temp_out, -20366, 21367)) /* -40°C <= temp_out <= 85°C ? */
+    if(in_range(temp_out, -20366, 21367)) /* -40ï¿½C <= temp_out <= 85ï¿½C ? */
     {
         mpu9250->temp_data = ((temp_out)/(float)333.87+(float)21.);
         return 0;
@@ -405,7 +406,7 @@ int mpu9250_temp_degC(mpu9250_t * mpu9250, const int16_t temp_out)
 
 /******************************************************************************/
 /**
-* Transform magnetometer sensor raw data to µT
+* Transform magnetometer sensor raw data to ï¿½T
 *
 * @param    ak8963 is a pointer to the ak8963_t instance
 * @param    x,y,z are the raw data of the magnetometer sensor for x, y & z axis
