@@ -143,7 +143,7 @@ void compute_angle (T_mpu_infos *p_mpu, float p_sample_time_s)
 // Retourne 1 si une frappe est detectee, 0 sinon
 unsigned char tapping_capture (T_mpu_infos *p_mpu)
 {
-    static int time_ms_last_tap = 0;
+    //static int time_ms_last_tap = 0;
     unsigned char result = 0;
 
     if (p_mpu->aca[0].x > MIN_ACA_TAPPING_CAPTURE/* && time_ms_last_tap > MIN_TIME_MS_LAST_TAP*/)
@@ -154,8 +154,9 @@ unsigned char tapping_capture (T_mpu_infos *p_mpu)
     return result;
 }
 
-void compute_mpu_infos (T_sensors *p_sensors, T_coord_3D data_asp, T_coord_3D data_acc, T_coord_3D data_mag, float p_sample_time_s)
+void compute_mpu_infos (T_sensors *p_sensors, T_coord_3D data_asp, T_coord_3D data_acc, T_coord_3D data_mag)
 {
+	float sample_time_s = timer_restart(TIMER_0);
     int i = 0;
     for (i=0;i<NB_OF_MPU;i++)
     {
@@ -163,7 +164,7 @@ void compute_mpu_infos (T_sensors *p_sensors, T_coord_3D data_asp, T_coord_3D da
 
         get_mpu_asp_acc_mag (&p_sensors->mpu[i], data_asp, data_acc, data_mag);
 
-        compute_angle(&p_sensors->mpu[i], p_sample_time_s);
+        compute_angle(&p_sensors->mpu[i], sample_time_s);
 
         test_tap = tapping_capture (&p_sensors->mpu[i]);
     }

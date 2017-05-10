@@ -19,10 +19,14 @@ int main(void)
     T_coord_3D data_acc;
     T_coord_3D data_mag;
 
+    printf("Hello world!\n");
+
     /* initialization */
     init_platform();
     init_all_mpu(&sensors);
-    printf("Hello world!\n");
+    timer_start(TIMER_0);
+
+    printf("MPU Connected!\n");
 
     /* Program statement */
     int i = 0;
@@ -30,7 +34,7 @@ int main(void)
     while (!0)
     {
     	read_all(&data_asp, &data_acc, &data_mag);
-        compute_mpu_infos (&sensors, data_asp, data_acc, data_mag, 0.00001);
+        compute_mpu_infos (&sensors, data_asp, data_acc, data_mag);
         //printf("ACC : %f \n", data_acc.x);
         //printf("ACA : %f \n", sensors.mpu[0].aca[0].x);
 
