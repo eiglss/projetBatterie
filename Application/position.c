@@ -146,7 +146,12 @@ void compute_angle (T_mpu_infos *p_mpu, float p_sample_time_s)
 
     // Calcul de l'acceleration angulaire (derivee de la vitesse angulaire)
     // Operation : accel_angulaire = (vitesse_angulaire - vitesse_angulaire_prec) / T_echantillonage
-    p_mpu->aca[0] = scalar_time_coord_3D(add_coord_3D(scalar_time_coord_3D(p_mpu->asp[1], -1) , p_mpu->asp[0]) , 1./p_sample_time_s);
+    //p_mpu->aca[0] = scalar_time_coord_3D(add_coord_3D(scalar_time_coord_3D(p_mpu->asp[1], -1) , p_mpu->asp[0]) , 1./p_sample_time_s);
+
+    // Test derivee double sur angle
+    p_mpu->aca[1] = scalar_time_coord_3D(add_coord_3D(scalar_time_coord_3D(p_mpu->ang[0], -1) , p_mpu->ang[0]) , 1./p_sample_time_s);
+    p_mpu->aca[0] = scalar_time_coord_3D(add_coord_3D(scalar_time_coord_3D(p_mpu->ang[0], -1) , p_mpu->ang[0]) , 1./p_sample_time_s);
+    p_mpu->aca[0] = scalar_time_coord_3D(add_coord_3D(scalar_time_coord_3D(p_mpu->aca[2], -1) , p_mpu->aca[0]) , 1./p_sample_time_s);
 }
 
 // Retourne 1 si une frappe est detectee, 0 sinon
