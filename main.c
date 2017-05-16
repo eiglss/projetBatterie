@@ -40,13 +40,15 @@ int main(void)
     {
     	read_all(&data_acc, &data_asp, &data_mag);
         compute_mpu_infos (&sensors, data_asp, data_acc, data_mag);
-        //printf("ACC : %f \n", data_acc.x);
-        //printf("%f \n", sensors.mpu[0].aca[0].x);
-        printf("%f, %f, %f \n", sensors.mpu[0].ang[0].x, sensors.mpu[0].ang[0].y, sensors.mpu[0].ang[0].z);
+        //printf("%f\n", sensors.mpu[0].aca[0].y);
+        //printf("%f, %f, %f\n", data_asp.x, data_asp.y, data_asp.z);
+        //printf("%f, %f, %f \n", sensors.mpu[0].ang[0].x, sensors.mpu[0].ang[0].y, sensors.mpu[0].ang[0].z);
         if(test_tap)
         {
+        	j ++;
         	i = 100;
-        	//printf("%f\n", sensors.mpu[0].ang[0].x);
+
+        	printf("%d\n", j);
         	/*if(sensors.mpu[0].ang[0].z > -100 && sensors.mpu[0].ang[0].z < -25)
         	{
         		print("1\n");
@@ -63,8 +65,6 @@ int main(void)
         	{
         		print("aucun\n");
         	}*/
-
-        	j++;
         }
 
         if(i > 0)

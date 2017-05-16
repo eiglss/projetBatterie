@@ -28,6 +28,9 @@ void init_all_mpu (T_sensors *p_sensors)
 	mpu9250_initialization(&mpu9250, IIC_0, MPU9250_IIC);
 	ak8963_initialization(&ak8963, IIC_0, AK8963_ADDR);
 
+    uint8_t data;
+    mpu9250_read_register(&mpu9250, MPU9250_GYRO_CONFIG, &data, 1);
+    printf("%X\n", data);
 
     int i, j;
     for (i=0;i<NB_OF_MPU;i++)
@@ -130,10 +133,13 @@ void compute_angle (T_mpu_infos *p_mpu, float p_sample_time_s)
     //acc_angle.x = atan(-p_mpu->acc[0].x/sqrt(pow(p_mpu->acc[0].y, 2) + pow(p_mpu->acc[0].z, 2))) * 180./M_PI;
     //acc_angle.y = atan2(p_mpu->acc[0].x , p_mpu->acc[0].z) * 180./M_PI;
 
-    acc_angle.x = atan2(p_mpu->acc[0].y , p_mpu->acc[0].z) * 180./M_PI;
-    acc_angle.y = atan2(p_mpu->acc[0].x , p_mpu->acc[0].z) * 180./M_PI;
+    //acc_angle.x = atan2(p_mpu->acc[0].y , p_mpu->acc[0].z) * 180./M_PI;
+    //acc_angle.y = atan2(p_mpu->acc[0].x , p_mpu->acc[0].z) * 180./M_PI;
 
-    gyr_angle = add_coord_3D(scalar_time_coord_3D(p_mpu->asp[0], p_sample_time_s/2.), p_mpu->ang[1]);
+    acc_angle.y = atan(-p_mpu->acc[0].x/sqrt(pow(p_mpu->acc[0].y, 2) + pow(p_mpu->acc[0].z, 2))) * 180./M_PI;
+    acc_angle.x = atan(-p_mpu->acc[0].y/sqrt(pow(p_mpu->acc[0].x, 2) + pow(p_mpu->acc[0].z, 2))) * 180./M_PI;
+
+    gyr_angle = add_coord_3D(scalar_time_coord_3D(p_mpu->asp[0], p_sample_time_s), p_mpu->ang[1]);
 
     p_mpu->ang[0] = add_coord_3D(scalar_time_coord_3D(gyr_angle, ALPHA_PARAM), scalar_time_coord_3D(acc_angle, 1 - ALPHA_PARAM));
     p_mpu->ang[0].z = p_mpu->mag[0].y;

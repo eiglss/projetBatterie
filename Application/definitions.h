@@ -1,13 +1,13 @@
 #ifndef DEFINITIONS_H
 #define DEFINITIONS_H
 
-#define NB_OF_STORED_SAMPLES 2
+#define NB_OF_STORED_SAMPLES 3
 #define NB_OF_MPU 1
 
-#define MIN_ACA_TAPPING_CAPTURE 300000
+#define MIN_ACA_TAPPING_CAPTURE 75000
 #define MIN_TIME_LAST_TAP 0.1 // 5ms
 
-#define ALPHA_PARAM 0.7
+#define ALPHA_PARAM 0.999
 
 typedef struct
 {
