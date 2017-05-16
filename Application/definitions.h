@@ -3,9 +3,10 @@
 
 #define NB_OF_STORED_SAMPLES 3
 #define NB_OF_MPU 1
+#define NB_MAX_TOMS 2
 
 #define MIN_ACA_TAPPING_CAPTURE 75000
-#define MIN_TIME_LAST_TAP 0.1 // 5ms
+#define MIN_TIME_LAST_TAP 0.1 // 10ms
 
 #define ALPHA_PARAM 0.999
 
@@ -16,6 +17,11 @@ typedef struct
     float z;
 } T_coord_3D;
 
+typedef struct
+{
+	float x;
+	float rayon;
+}T_tom;
 
 /*
 * asp : angular speed (vitesse angulaire) [�/s]
@@ -33,6 +39,7 @@ typedef struct
     T_coord_3D acc[NB_OF_STORED_SAMPLES];
     T_coord_3D aca[NB_OF_STORED_SAMPLES];
     T_coord_3D mag[NB_OF_STORED_SAMPLES];
+    T_tom tab_toms[NB_MAX_TOMS];
 } T_mpu_infos;
 
 

@@ -36,13 +36,23 @@ int main(void)
     /* Program statement */
     int i = 0;
     int j = 0;
+    int calibration = 1;
+    int nb_toms = 2;
+
+    fonction_calibration(&sensors, nb_toms, 1);
+
     while (!0)
     {
     	read_all(&data_acc, &data_asp, &data_mag);
         compute_mpu_infos (&sensors, data_asp, data_acc, data_mag);
-        //printf("%f\n", sensors.mpu[0].aca[0].y);
-        //printf("%f, %f, %f\n", data_asp.x, data_asp.y, data_asp.z);
-        //printf("%f, %f, %f \n", sensors.mpu[0].ang[0].x, sensors.mpu[0].ang[0].y, sensors.mpu[0].ang[0].z);
+
+        if(calibration == 1)
+        	calibration = fonction_calibration(&sensors, nb_toms, 0);
+
+        //printf("ACC : %f \n", data_acc.x);
+        //printf("%f \n", sensors.mpu[0].aca[0].x);
+        printf("%f, %f, %f \n", sensors.mpu[0].ang[0].x, sensors.mpu[0].ang[0].y, sensors.mpu[0].ang[0].z);
+
         if(test_tap)
         {
         	j ++;
