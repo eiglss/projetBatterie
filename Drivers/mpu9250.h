@@ -412,7 +412,7 @@ typedef struct
     uint8_t   acc_full_scale      : 2;
     axis_3d_t acc; /* g */
     /* Additional Features */
-    float temp_data; /* ï¿½C */
+    float temp_data; /* °C */
 }mpu9250_t;
 
 typedef struct
