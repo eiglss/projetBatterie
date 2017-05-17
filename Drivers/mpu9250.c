@@ -515,7 +515,7 @@ int ak8963_mag_uT(ak8963_t * ak8963, const int16_t x, const int16_t y, const int
 int ak8963_mag_compass(ak8963_t * ak8963, const int16_t x, const int16_t y, const int16_t z)
 {
     	if(ak8963_mag_uT(ak8963, x, y, z) == -1) return -1;
-    	ak8963->compass = atan2(ak8963->mag.y, ak8963->mag.x)*180./M_PI;
+    	ak8963->compass = 90.-atan(ak8963->mag.y/ak8963->mag.x)*180./M_PI;
         return 0;
 }
 
