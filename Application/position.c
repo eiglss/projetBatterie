@@ -18,12 +18,13 @@ void read_all(T_coord_3D *p_data_acc, T_coord_3D *p_data_asp, T_coord_3D *p_data
 	p_data_asp->y = mpu9250.gy.y;
 	p_data_asp->z = mpu9250.gy.z;
 
-	int pleine_echelle_mag = 1;
-	int offset_mag = 100;
 	ak8963_read_mag(&ak8963);
-	p_data_mag->x = (((ak8963.mag.x + offset_mag)/pleine_echelle_mag) * 180);
-	p_data_mag->y = (((ak8963.mag.y + offset_mag)/pleine_echelle_mag) * 180);
-	p_data_mag->z = (((ak8963.mag.z + offset_mag)/pleine_echelle_mag) * 180);
+	//p_data_mag->x = ak8963.mag.x;
+	//p_data_mag->y = ak8963.mag.y;
+	//p_data_mag->z = ak8963.mag.z;
+	p_data_mag->x = ak8963.compass;
+	p_data_mag->y = ak8963.compass;
+	p_data_mag->z = ak8963.compass;
 
 	// Capteurs autres
 	// ...
@@ -34,10 +35,6 @@ void init_all_mpu (T_sensors *p_sensors)
     // Init des MPU
 	mpu9250_initialization(&mpu9250, IIC_0, MPU9250_IIC);
 	ak8963_initialization(&ak8963, IIC_0, AK8963_ADDR);
-
-    uint8_t data;
-    mpu9250_read_register(&mpu9250, MPU9250_GYRO_CONFIG, &data, 1);
-    printf("%X\n", data);
 
     int i, j;
     for (i=0;i<NB_OF_MPU;i++)
@@ -136,7 +133,7 @@ float abs_angle_diff(float ang1, float ang2)
 {
 	if(fabs(ang1 - ang2) > 180)
 	{
-		return fabs(ang1 - ang2) + 180;
+		return 360 - fabs(ang1 - ang2);
 	}
 	else
 	{
@@ -170,13 +167,13 @@ void tapping_capture (T_mpu_infos *p_mpu, float p_sample_time_s)
     static float time_ms_last_tap = 0;
 
     time_ms_last_tap += p_sample_time_s;
-    if (fabs(p_mpu->aca[0].y > MIN_ACA_TAPPING_CAPTURE) && time_ms_last_tap > MIN_TIME_LAST_TAP)
+    if (fabs(p_mpu->aca[0].y) > MIN_ACA_TAPPING_CAPTURE && /*fabs(p_mpu->acc[0].z) > MIN_ACC_TAPPING_CAPTURE && */ time_ms_last_tap > MIN_TIME_LAST_TAP)
     {
         time_ms_last_tap = 0;
-        p_mpu->tap = 1;
+        p_mpu->tap = 0;
     }
     else
-    	p_mpu->tap = 0;
+    	p_mpu->tap = -1;
 }
 
 int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
@@ -205,7 +202,7 @@ int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
 		{
 			if(left_tap[i] > 0)
 			{
-				if(p_sensors->mpu[i].tap == 1)
+				if(p_sensors->mpu[i].tap >= 0)
 				{
 					left_tap[i]--;
 					printf("TAPOK\n");
@@ -240,6 +237,7 @@ int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
 						nb_passages[i] = 0;
 						left_toms[i]--;
 						p_sensors->mpu[i].tab_toms[left_toms[i]].x = p_sensors->mpu[i].ang[0].z;
+						p_sensors->mpu[i].tab_toms[left_toms[i]].rayon = 10;						// test : a enlever
 						printf("TOM OK %f\n", p_sensors->mpu[i].tab_toms[left_toms[i]].x);
 					}
 				}
@@ -251,7 +249,20 @@ int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
     }
 }
 
-void compute_mpu_infos (T_sensors *p_sensors, T_coord_3D data_asp, T_coord_3D data_acc, T_coord_3D data_mag)
+void get_tom_tapped(T_mpu_infos *p_mpu)
+{
+	int i = 0;
+	for (i=0 ; i<NB_TOMS ; i++)
+	{
+		//printf("Get Tom : %f\n" ,abs_angle_diff(p_mpu->tab_toms[i].x, p_mpu->ang[0].z));
+		if(abs_angle_diff(p_mpu->tab_toms[i].x, p_mpu->ang[0].z) < p_mpu->tab_toms[i].rayon)
+		{
+			p_mpu->tap = i;
+		}
+	}
+}
+
+void compute_mpu_infos (T_sensors *p_sensors, T_coord_3D data_asp, T_coord_3D data_acc, T_coord_3D data_mag, int calibration)
 {
 	float sample_time_s = timer_restart(TIMER_0);
     int i = 0;
@@ -264,6 +275,10 @@ void compute_mpu_infos (T_sensors *p_sensors, T_coord_3D data_asp, T_coord_3D da
         compute_angle(&p_sensors->mpu[i], sample_time_s);
 
         tapping_capture (&p_sensors->mpu[i], sample_time_s);
+
+        // Si la calibration a ete effectuee et une frappe a ete detectee
+        if(calibration == 0 && p_sensors->mpu[i].tap == 0)
+        	get_tom_tapped(&p_sensors->mpu[i]);
     }
 }
 
