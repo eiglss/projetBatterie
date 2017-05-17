@@ -406,13 +406,13 @@ typedef struct
 	axi_iic_t * iic;
 	uint8_t     address : 7;
     /* Gyroscope Features */
-    uint8_t  gy_full_scale      : 2;
-    axis_3d_t gy; /* ï¿½/s */
+    uint8_t   gy_full_scale      : 2;
+    axis_3d_t gy; /* °/s */
     /* Accelerometer Features */
-    uint8_t  acc_full_scale      : 2;
+    uint8_t   acc_full_scale      : 2;
     axis_3d_t acc; /* g */
     /* Additional Features */
-    float    temp_data; /* ï¿½C */
+    float temp_data; /* ï¿½C */
 }mpu9250_t;
 
 typedef struct
@@ -421,8 +421,9 @@ typedef struct
 	axi_iic_t * iic;
 	uint8_t     address : 7;
     /* Magnetometer Features */
-    uint8_t  mag_full_scale : 1; /* 0: 14 bits precision; 1: 16 bits precision */
-    axis_3d_t mag; /* ï¿½T */
+    uint8_t   mag_full_scale : 1; /* 0: 14 bits precision; 1: 16 bits precision */
+    axis_3d_t mag; /* µT */
+    float compass; /* degree */
 }ak8963_t;
 
 /*******************************   FUNCTIONS    *******************************/
@@ -439,6 +440,8 @@ int ak8963_read_register(ak8963_t * ak8963, uint8_t reg_addr, uint8_t * data, ui
 int mpu9250_gy_scale(mpu9250_t * mpu9250, uint8_t scale);
 int mpu9250_acc_scale(mpu9250_t * mpu9250, uint8_t scale);
 int ak8963_mag_scale(ak8963_t * ak8963, uint8_t scale);
+/*****  MODE ****/
+int ak8963_mag_mode(ak8963_t * ak8963, uint8_t mode);
 /***** FILTER *****/
 int mpu9250_filter(mpu9250_t * mpu9250, uint8_t filter);
 /**** INTERRUPTION ****/
