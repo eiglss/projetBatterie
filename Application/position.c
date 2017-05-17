@@ -9,6 +9,7 @@ static ak8963_t ak8963;
 
 void read_all(T_coord_3D *p_data_acc, T_coord_3D *p_data_asp, T_coord_3D *p_data_mag)
 {
+	// Capteur 1
 	mpu9250_read_all(&mpu9250);
 	p_data_acc->x = mpu9250.acc.x;
 	p_data_acc->y = mpu9250.acc.y;
@@ -23,6 +24,9 @@ void read_all(T_coord_3D *p_data_acc, T_coord_3D *p_data_asp, T_coord_3D *p_data
 	p_data_mag->x = (((ak8963.mag.x + offset_mag)/pleine_echelle_mag) * 180);
 	p_data_mag->y = (((ak8963.mag.y + offset_mag)/pleine_echelle_mag) * 180);
 	p_data_mag->z = (((ak8963.mag.z + offset_mag)/pleine_echelle_mag) * 180);
+
+	// Capteurs autres
+	// ...
 }
 
 void init_all_mpu (T_sensors *p_sensors)
@@ -128,45 +132,51 @@ T_coord_3D saturator_angle (T_coord_3D p_angle)
     return ang_cor;
 }
 
+float abs_angle_diff(float ang1, float ang2)
+{
+	if(fabs(ang1 - ang2) > 180)
+	{
+		return fabs(ang1 - ang2) + 180;
+	}
+	else
+	{
+		return fabs(ang1 - ang2);
+	}
+}
+
 void compute_angle (T_mpu_infos *p_mpu, float p_sample_time_s)
 {
     // Calcul de l'angle
     T_coord_3D gyr_angle, acc_angle;
 
-    //acc_angle.x = atan(-p_mpu->acc[0].x/sqrt(pow(p_mpu->acc[0].y, 2) + pow(p_mpu->acc[0].z, 2))) * 180./M_PI;
-    //acc_angle.y = atan2(p_mpu->acc[0].x , p_mpu->acc[0].z) * 180./M_PI;
-
-    acc_angle.y = atan(-p_mpu->acc[0].x/sqrt(pow(p_mpu->acc[0].y, 2) + pow(p_mpu->acc[0].z, 2))) * 180./M_PI;
-    acc_angle.x = atan(-p_mpu->acc[0].y/sqrt(pow(p_mpu->acc[0].x, 2) + pow(p_mpu->acc[0].z, 2))) * 180./M_PI;
+    acc_angle.y = atan(p_mpu->acc[0].x/sqrt(pow(p_mpu->acc[0].y, 2) + pow(p_mpu->acc[0].z, 2))) * 180./M_PI;
+    acc_angle.x = atan(p_mpu->acc[0].y/sqrt(pow(p_mpu->acc[0].x, 2) + pow(p_mpu->acc[0].z, 2))) * 180./M_PI;
 
     gyr_angle = add_coord_3D(scalar_time_coord_3D(p_mpu->asp[0], p_sample_time_s), p_mpu->ang[1]);
 
     p_mpu->ang[0] = add_coord_3D(scalar_time_coord_3D(gyr_angle, ALPHA_PARAM), scalar_time_coord_3D(acc_angle, 1 - ALPHA_PARAM));
-    //p_mpu->ang[0].z = p_mpu->mag[0].y;
+    //p_mpu->ang[0].z = (gyr_angle.z*ALPHA_PARAM) + (p_mpu->mag[0].y*(1-ALPHA_PARAM));
+    p_mpu->ang[0].z = p_mpu->mag[0].y;
 
     // Calcul de l'acceleration angulaire (derivee de la vitesse angulaire)
     // Operation : accel_angulaire = (vitesse_angulaire - vitesse_angulaire_prec) / T_echantillonage
-    //p_mpu->aca[0] = scalar_time_coord_3D(add_coord_3D(scalar_time_coord_3D(p_mpu->asp[1], -1) , p_mpu->asp[0]) , 1./p_sample_time_s);
+    p_mpu->aca[0] = scalar_time_coord_3D(add_coord_3D(scalar_time_coord_3D(p_mpu->asp[1], -1) , p_mpu->asp[0]) , 1./p_sample_time_s);
 
-    // Test derivee double sur angle
-    p_mpu->aca[1] = scalar_time_coord_3D(add_coord_3D(scalar_time_coord_3D(p_mpu->ang[0], -1) , p_mpu->ang[0]) , 1./p_sample_time_s);
-    p_mpu->aca[0] = scalar_time_coord_3D(add_coord_3D(scalar_time_coord_3D(p_mpu->ang[0], -1) , p_mpu->ang[0]) , 1./p_sample_time_s);
-    p_mpu->aca[0] = scalar_time_coord_3D(add_coord_3D(scalar_time_coord_3D(p_mpu->aca[2], -1) , p_mpu->aca[0]) , 1./p_sample_time_s);
-}
+ }
 
 // Retourne 1 si une frappe est detectee, 0 sinon
-unsigned char tapping_capture (T_mpu_infos *p_mpu, float p_sample_time_s)
+void tapping_capture (T_mpu_infos *p_mpu, float p_sample_time_s)
 {
     static float time_ms_last_tap = 0;
-    unsigned char result = 0;
 
     time_ms_last_tap += p_sample_time_s;
-    if (p_mpu->aca[0].x > MIN_ACA_TAPPING_CAPTURE && time_ms_last_tap > MIN_TIME_LAST_TAP)
+    if (fabs(p_mpu->aca[0].y > MIN_ACA_TAPPING_CAPTURE) && time_ms_last_tap > MIN_TIME_LAST_TAP)
     {
-        result = 1;
         time_ms_last_tap = 0;
+        p_mpu->tap = 1;
     }
-    return result;
+    else
+    	p_mpu->tap = 0;
 }
 
 int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
@@ -177,6 +187,7 @@ int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
 	float norm_speed;
 	static int nb_passages[NB_OF_MPU];
 	static int left_toms[NB_OF_MPU];
+	static int left_tap[NB_OF_MPU]; // Nombre de fois à taper avant calibration
 
 	if(init)
 	{
@@ -184,42 +195,60 @@ int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
 	    {
 	    	nb_passages[i] = 0;
 	    	left_toms[i] = p_nb_toms;
+	    	left_tap[i] = 5;
 	    }
+	    return 1;
 	}
 	else
     {
 		for (i=0;i<NB_OF_MPU;i++)
 		{
-			norm_speed = sqrt(pow(p_sensors->mpu[i].asp[0].x,2) + pow(p_sensors->mpu[i].asp[0].y,2) + pow(p_sensors->mpu[i].asp[0].z,2));
-			if(norm_speed < 10)
-				nb_passages[i] ++;
-			else
-				nb_passages[i] = 0;
-
-			if(nb_passages[i] >= 1000 && left_toms[i] > 0)
+			if(left_tap[i] > 0)
 			{
-				ok = 1;
-				for(j = 0 ; j < left_toms[i] ; j++)
+				if(p_sensors->mpu[i].tap == 1)
 				{
-					if (sqrt(pow(p_sensors->mpu[i].tab_toms[j].x - p_sensors->mpu[i].ang[0].z,2)) < 10)
-					{
-						ok = 0;
-						nb_passages[i] = 0; // Trop proches (< 10�)
-						break;
-					}
+					left_tap[i]--;
+					printf("TAPOK\n");
 				}
-				if (ok)
+			}
+			else
+			{
+				norm_speed = sqrt(pow(p_sensors->mpu[i].asp[0].x,2) + pow(p_sensors->mpu[i].asp[0].y,2) + pow(p_sensors->mpu[i].asp[0].z,2));
+				if(norm_speed < 100)
 				{
+					nb_passages[i] ++;
+				}
+				else
+				{
+					//printf("Bouge \n");
 					nb_passages[i] = 0;
-					left_toms[i]--;
-					p_sensors->mpu[i].tab_toms[left_toms[i]].x = p_sensors->mpu[i].ang[0].z;
+				}
+
+				if(nb_passages[i] >= 1000 && left_toms[i] > 0)
+				{
+					ok = 1;
+					for(j = p_nb_toms ; j > left_toms[i] ; j--)
+					{
+						if (abs_angle_diff(p_sensors->mpu[i].tab_toms[j-1].x, p_sensors->mpu[i].ang[0].z) < 10.)
+						{
+							ok = 0;
+							nb_passages[i] = 0; // Trop proches (< 10 deg)
+						}
+					}
+					if (ok)
+					{
+						nb_passages[i] = 0;
+						left_toms[i]--;
+						p_sensors->mpu[i].tab_toms[left_toms[i]].x = p_sensors->mpu[i].ang[0].z;
+						printf("TOM OK %f\n", p_sensors->mpu[i].tab_toms[left_toms[i]].x);
+					}
 				}
 			}
 			if(left_toms[i]>0)
 				calibration_necessaire = 1;
 		}
+		return calibration_necessaire;
     }
-	return calibration_necessaire;
 }
 
 void compute_mpu_infos (T_sensors *p_sensors, T_coord_3D data_asp, T_coord_3D data_acc, T_coord_3D data_mag)
@@ -234,7 +263,7 @@ void compute_mpu_infos (T_sensors *p_sensors, T_coord_3D data_asp, T_coord_3D da
 
         compute_angle(&p_sensors->mpu[i], sample_time_s);
 
-        test_tap = tapping_capture (&p_sensors->mpu[i], sample_time_s);
+        tapping_capture (&p_sensors->mpu[i], sample_time_s);
     }
 }
 
