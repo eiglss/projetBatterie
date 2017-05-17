@@ -212,8 +212,15 @@ int ak8963_read_register(ak8963_t * ak8963, uint8_t reg_addr, uint8_t * data, ui
 *******************************************************************************/
 int mpu9250_gy_scale(mpu9250_t * mpu9250, uint8_t scale)
 {
+	/* local declaration */
+	uint8_t gyro_config;
+	/* program statement */
+	if(mpu9250_read_register(mpu9250, MPU9250_GYRO_CONFIG, &gyro_config, 1) == -1) return -1;
+	gyro_config &= ~MPU9250_GYRO_FS_SEL;
+	gyro_config |= MPU9250_GYRO_FS_SEL&(scale<<3);
+    if(mpu9250_write_register(mpu9250, MPU9250_GYRO_CONFIG, gyro_config) == -1) return -1;
     mpu9250->gy_full_scale = scale;
-    return mpu9250_write_register(mpu9250, MPU9250_GYRO_CONFIG, MPU9250_GYRO_FS_SEL&(scale<<3));
+    return 0;
 }
 
 /******************************************************************************/
@@ -232,8 +239,15 @@ int mpu9250_gy_scale(mpu9250_t * mpu9250, uint8_t scale)
 *******************************************************************************/
 int mpu9250_acc_scale(mpu9250_t * mpu9250, uint8_t scale)
 {
-    mpu9250->acc_full_scale = scale;
-    return mpu9250_write_register(mpu9250, MPU9250_ACCEL_CONFIG, MPU9250_ACCEL_FS_SEL&(scale<<3));
+	/* local declaration */
+	uint8_t acc_config;
+	/* program statement */
+	if(mpu9250_read_register(mpu9250, MPU9250_ACCEL_CONFIG, &acc_config, 1) == -1) return -1;
+	acc_config &= ~MPU9250_ACCEL_FS_SEL;
+	acc_config |= MPU9250_ACCEL_FS_SEL&(scale<<3);
+	if(mpu9250_write_register(mpu9250, MPU9250_ACCEL_CONFIG, acc_config) == -1) return -1;
+	mpu9250->acc_full_scale = scale;
+	return 0;
 }
 
 /******************************************************************************/
@@ -252,8 +266,48 @@ int mpu9250_acc_scale(mpu9250_t * mpu9250, uint8_t scale)
 *******************************************************************************/
 int ak8963_mag_scale(ak8963_t * ak8963, uint8_t scale)
 {
-    ak8963->mag_full_scale = scale;
-    return ak8963_write_register(ak8963, AK8963_CNTL1, (AK8963_MAG_BIT&(scale<<4))|AK8963_MAG_MODE3);
+    /* local declaration */
+	uint8_t mag_cntl1;
+	/* program statement */
+	if(ak8963_read_register(ak8963, AK8963_CNTL1, &mag_cntl1, 1) == -1) return -1;
+	mag_cntl1 &= ~AK8963_MAG_BIT;
+	mag_cntl1 |= AK8963_MAG_BIT&(scale<<4);
+	if(ak8963_write_register(ak8963, AK8963_CNTL1, mag_cntl1) == -1) return -1;
+	ak8963->mag_full_scale = scale;
+	return 0;
+}
+
+/******************************************************************************/
+/**
+* Configure the mode of the ak8963
+*
+* @param    ak8963 is a pointer to the ak8963_t instance
+* @param    mode is the mode of the ak8963
+* 				- AK8963_MAG_MODE0 (0000): Power-down mode
+*				- AK8963_MAG_MODE1 (0001): Single measurement mode
+*				- AK8963_MAG_MODE2 (0010): Continuous measurement mode 1
+*				- AK8963_MAG_MODE3 (0110): Continuous measurement mode 2
+*				- AK8963_MAG_MODE4 (0100): External trigger measurement mode
+*				- AK8963_MAG_MODE5 (1000): Self-test mode
+*				- AK8963_MAG_MODE6 (1111): Fuse ROM access mode
+*				Other code settings are prohibited
+*
+* @return   -1 if an error occurred else 0
+*
+* @note     IIC in the ak8963 instance must be initialize before using this
+*           function. The continuous mode 2 is configured after using this
+*           function. 14 bits correspond to 0.6 �T/LSB and 16 bits to 0.15�T/LSB
+*
+*******************************************************************************/
+int ak8963_mag_mode(ak8963_t * ak8963, uint8_t mode)
+{
+    /* local declaration */
+	uint8_t mag_cntl1;
+	/* program statement */
+	if(ak8963_read_register(ak8963, AK8963_CNTL1, &mag_cntl1, 1) == -1) return -1;
+	mag_cntl1 &= ~AK8963_MAG_MODE;
+	mag_cntl1 |= AK8963_MAG_MODE&mode;
+	return ak8963_write_register(ak8963, AK8963_CNTL1, mag_cntl1);
 }
 
 /******************************************************************************/
@@ -271,8 +325,15 @@ int ak8963_mag_scale(ak8963_t * ak8963, uint8_t scale)
 *******************************************************************************/
 int mpu9250_filter(mpu9250_t * mpu9250, uint8_t filter)
 {
-    if(mpu9250_write_register(mpu9250, MPU9250_CONFIG, MPU9250_DLPF_CFG&filter) == -1) return -1;
-    return mpu9250_write_register(mpu9250, MPU9250_GYRO_CONFIG, MPU9250_FCHOICE_B);
+	/* local declaration */
+	uint8_t config;
+	/* program statement */
+	if(mpu9250_read_register(mpu9250, MPU9250_CONFIG, &config, 1) == -1) return -1;
+	config &= ~MPU9250_DLPF_CFG;
+	config |= MPU9250_DLPF_CFG&filter;
+	if(mpu9250_write_register(mpu9250, MPU9250_CONFIG, config) == -1) return -1;
+	if(mpu9250_read_register(mpu9250, MPU9250_GYRO_CONFIG, &config, 1) == -1) return -1;
+	return mpu9250_write_register(mpu9250, MPU9250_GYRO_CONFIG, config|MPU9250_FCHOICE_B);
 }
 
 /******************************************************************************/
@@ -289,8 +350,13 @@ int mpu9250_filter(mpu9250_t * mpu9250, uint8_t filter)
 *******************************************************************************/
 int mpu9250_enable_int(mpu9250_t * mpu9250)
 {
-    if(mpu9250_write_register(mpu9250, MPU9250_INT_PIN_CFG, MPU9250_INT_ANYRD_2CLEAR|MPU9250_BYPASS_EN) == -1) return -1;
-    return mpu9250_write_register(mpu9250, MPU9250_INT_ENABLE, MPU9250_RAW_RDY_EN);
+	/* local declaration */
+	uint8_t int_cfg;
+	/* program statement */
+	if(mpu9250_read_register(mpu9250, MPU9250_INT_PIN_CFG, &int_cfg, 1) == -1) return -1;
+    if(mpu9250_write_register(mpu9250, MPU9250_INT_PIN_CFG, int_cfg|(MPU9250_INT_ANYRD_2CLEAR|MPU9250_BYPASS_EN)) == -1) return -1;
+    if(mpu9250_read_register(mpu9250, MPU9250_INT_ENABLE, &int_cfg, 1) == -1) return -1;
+    return mpu9250_write_register(mpu9250, MPU9250_INT_ENABLE, int_cfg|MPU9250_RAW_RDY_EN);
 }
 
 /******************************************************************************/
@@ -334,7 +400,8 @@ int ak8963_initialization(ak8963_t * ak8963, axi_iic_t * iic, uint8_t address)
 	ak8963->iic = iic;
     ak8963->address = address;
     if(ak8963_write_register(ak8963, AK8963_CNTL2, AK8963_MAG_SRST)) return -1; /* Soft reset */
-    return ak8963_mag_scale(ak8963, 1); /* 16 bits precision and continuous mode 2 */
+    if(ak8963_mag_mode(ak8963, AK8963_MAG_MODE3) == -1) return -1; /* continuous mode 2 */
+    return ak8963_mag_scale(ak8963, 1); /* 16 bits precision */
 }
 
 /******************************************************************************/

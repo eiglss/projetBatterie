@@ -439,6 +439,8 @@ int ak8963_read_register(ak8963_t * ak8963, uint8_t reg_addr, uint8_t * data, ui
 int mpu9250_gy_scale(mpu9250_t * mpu9250, uint8_t scale);
 int mpu9250_acc_scale(mpu9250_t * mpu9250, uint8_t scale);
 int ak8963_mag_scale(ak8963_t * ak8963, uint8_t scale);
+/*****  MODE ****/
+int ak8963_mag_mode(ak8963_t * ak8963, uint8_t mode);
 /***** FILTER *****/
 int mpu9250_filter(mpu9250_t * mpu9250, uint8_t filter);
 /**** INTERRUPTION ****/
