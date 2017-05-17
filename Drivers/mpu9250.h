@@ -406,13 +406,13 @@ typedef struct
 	axi_iic_t * iic;
 	uint8_t     address : 7;
     /* Gyroscope Features */
-    uint8_t  gy_full_scale      : 2;
+    uint8_t   gy_full_scale      : 2;
     axis_3d_t gy; /* °/s */
     /* Accelerometer Features */
-    uint8_t  acc_full_scale      : 2;
+    uint8_t   acc_full_scale      : 2;
     axis_3d_t acc; /* g */
     /* Additional Features */
-    float    temp_data; /* ï¿½C */
+    float temp_data; /* ï¿½C */
 }mpu9250_t;
 
 typedef struct
@@ -421,8 +421,9 @@ typedef struct
 	axi_iic_t * iic;
 	uint8_t     address : 7;
     /* Magnetometer Features */
-    uint8_t  mag_full_scale : 1; /* 0: 14 bits precision; 1: 16 bits precision */
-    axis_3d_t mag; /* ï¿½T */
+    uint8_t   mag_full_scale : 1; /* 0: 14 bits precision; 1: 16 bits precision */
+    axis_3d_t mag; /* µT */
+    float compass; /* degree */
 }ak8963_t;
 
 /*******************************   FUNCTIONS    *******************************/

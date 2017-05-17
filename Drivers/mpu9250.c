@@ -10,6 +10,7 @@
 
 /*******************************    LIBRARYS    *******************************/
 #include "mpu9250.h"
+#include <math.h>
 
 /*******************************   FUNCTIONS    *******************************/
 /******************************************************************************/
@@ -473,7 +474,7 @@ int mpu9250_temp_degC(mpu9250_t * mpu9250, const int16_t temp_out)
 
 /******************************************************************************/
 /**
-* Transform magnetometer sensor raw data to ï¿½T
+* Transform magnetometer sensor raw data to µT
 *
 * @param    ak8963 is a pointer to the ak8963_t instance
 * @param    x,y,z are the raw data of the magnetometer sensor for x, y & z axis
@@ -498,6 +499,45 @@ int ak8963_mag_uT(ak8963_t * ak8963, const int16_t x, const int16_t y, const int
     }
     return -1;
 }
+
+/******************************************************************************/
+/**
+* Transform magnetometer sensor raw data to degree (compass) and update µT data
+*
+* @param    ak8963 is a pointer to the ak8963_t instance
+* @param    x,y,z are the raw data of the magnetometer sensor for x, y & z axis
+*
+* @return   -1 if an error occurred else 0
+*
+* @note     The data is automatically update in the mpu9250_t instance
+*
+*******************************************************************************/
+int ak8963_mag_compass(ak8963_t * ak8963, const int16_t x, const int16_t y, const int16_t z)
+{
+    	if(ak8963_mag_uT(ak8963, x, y, z) == -1) return -1;
+    	if(ak8963->mag.y > 0.)
+    	{
+    		ak8963->compass = 90-atan((ak8963->mag.x)/(ak8963->mag.y))*180./M_PI;
+    	}
+    	else if(ak8963->mag.y < 0.)
+    	{
+    		ak8963->compass = 270-atan((ak8963->mag.x)/(ak8963->mag.y))*180./M_PI;
+    	}
+    	else if(ak8963->mag.x < 0.)
+    	{
+    		ak8963->compass = 180.;
+    	}
+    	else if(ak8963->mag.x > 0.)
+    	{
+    		ak8963->compass = 0.;
+    	}
+    	else
+    	{
+    		return -1;
+    	}
+        return 0;
+}
+
 
 /******************************************************************************/
 /**
@@ -591,7 +631,7 @@ int ak8963_read_mag(ak8963_t * ak8963)
     x = (uint16_t)mag[2]<<8|(uint16_t)mag[1];
     y = (uint16_t)mag[4]<<8|(uint16_t)mag[3];
     z = (uint16_t)mag[6]<<8|(uint16_t)mag[5];
-    if(ak8963_mag_uT(ak8963, x, y, z) == -1) return -1;
+    if(ak8963_mag_compass(ak8963, x, y, z) == -1) return -1;
     if(!(mag[0]&(AK8963_MAG_DRDY|AK8963_MAG_DOR)) || mag[7]&AK8963_MAG_HOFL) return FALSE;
     return TRUE;
 }
