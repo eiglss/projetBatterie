@@ -43,22 +43,24 @@ int main(void)
     while (!0)
     {
     	read_all(&data_acc, &data_asp, &data_mag);
-        compute_mpu_infos (&sensors, data_asp, data_acc, data_mag);
+        compute_mpu_infos (&sensors, data_asp, data_acc, data_mag, calibration);
 
         if(calibration == 1)
         	calibration = fonction_calibration(&sensors, NB_TOMS, 0);
 
-        //printf("ACC : %f \n", data_acc.x);
-        //printf("%f \n", sensors.mpu[0].ang[0].z);
+        printf("%f \n", sensors.mpu[0].ang[0].z);
+        //printf("%f\n", sensors.mpu[0].mag[0].z);
+        //printf("%f, %f \n", sensors.mpu[0].mag[0].x, sensors.mpu[0].mag[0].y);
         //printf("%f, %f, %f \n", sensors.mpu[0].ang[0].x, sensors.mpu[0].ang[1].x, sensors.mpu[0].ang[2].x);
 
-        if(sensors.mpu[0].tap == 1)
+        if(sensors.mpu[0].tap >= 0 && calibration != 1)
         {
         	j ++;
         	i = 100;
-
+        	printf("Frappe detectee : %d\n", sensors.mpu[0].tap);
+        	printf("Angle : %f \n", sensors.mpu[0].ang[0].z);
         	//printf("%d\n", j);
-        	if(sensors.mpu[0].ang[0].z < sensors.mpu[0].tab_toms[0].x + 5000 && sensors.mpu[0].ang[0].z > sensors.mpu[0].tab_toms[0].x - 5000)
+        	/*if(sensors.mpu[0].ang[0].z < sensors.mpu[0].tab_toms[0].x + 5000 && sensors.mpu[0].ang[0].z > sensors.mpu[0].tab_toms[0].x - 5000)
         	{
         		printf("1\n");
         	}
@@ -73,7 +75,7 @@ int main(void)
         	else
         	{
         		printf("aucun\n");
-        	}
+        	}*/
         }
 
         if(i > 0)
