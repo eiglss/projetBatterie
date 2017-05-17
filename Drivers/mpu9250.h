@@ -407,7 +407,7 @@ typedef struct
 	uint8_t     address : 7;
     /* Gyroscope Features */
     uint8_t  gy_full_scale      : 2;
-    axis_3d_t gy; /* ï¿½/s */
+    axis_3d_t gy; /* °/s */
     /* Accelerometer Features */
     uint8_t  acc_full_scale      : 2;
     axis_3d_t acc; /* g */
