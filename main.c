@@ -37,9 +37,8 @@ int main(void)
     int i = 0;
     int j = 0;
     int calibration = 1;
-    int nb_toms = 2;
 
-    fonction_calibration(&sensors, nb_toms, 1);
+    fonction_calibration(&sensors, NB_TOMS, 1);
 
     while (!0)
     {
@@ -47,34 +46,34 @@ int main(void)
         compute_mpu_infos (&sensors, data_asp, data_acc, data_mag);
 
         if(calibration == 1)
-        	calibration = fonction_calibration(&sensors, nb_toms, 0);
+        	calibration = fonction_calibration(&sensors, NB_TOMS, 0);
 
         //printf("ACC : %f \n", data_acc.x);
-        //printf("%f \n", sensors.mpu[0].aca[0].x);
-        printf("%f, %f, %f \n", sensors.mpu[0].ang[0].x, sensors.mpu[0].ang[0].y, sensors.mpu[0].ang[0].z);
+        //printf("%f \n", sensors.mpu[0].ang[0].z);
+        //printf("%f, %f, %f \n", sensors.mpu[0].ang[0].x, sensors.mpu[0].ang[1].x, sensors.mpu[0].ang[2].x);
 
-        if(test_tap)
+        if(sensors.mpu[0].tap == 1)
         {
         	j ++;
         	i = 100;
 
-        	printf("%d\n", j);
-        	/*if(sensors.mpu[0].ang[0].z > -100 && sensors.mpu[0].ang[0].z < -25)
+        	//printf("%d\n", j);
+        	if(sensors.mpu[0].ang[0].z < sensors.mpu[0].tab_toms[0].x + 5000 && sensors.mpu[0].ang[0].z > sensors.mpu[0].tab_toms[0].x - 5000)
         	{
-        		print("1\n");
+        		printf("1\n");
         	}
-        	else if(sensors.mpu[0].ang[0].z > -25 && sensors.mpu[0].ang[0].z < 50)
+        	else if(sensors.mpu[0].ang[0].z < sensors.mpu[0].tab_toms[1].x + 5000 && sensors.mpu[0].ang[0].z > sensors.mpu[0].tab_toms[1].x - 5000)
         	{
-        		print("2\n");
+        		printf("2\n");
         	}
-        	else if(sensors.mpu[0].ang[0].z > 50 && sensors.mpu[0].ang[0].z < 125)
+        	else if(sensors.mpu[0].ang[0].z < sensors.mpu[0].tab_toms[2].x + 5000 && sensors.mpu[0].ang[0].z > sensors.mpu[0].tab_toms[2].x - 5000)
         	{
-        		print("3\n");
+        		printf("3\n");
         	}
         	else
         	{
-        		print("aucun\n");
-        	}*/
+        		printf("aucun\n");
+        	}
         }
 
         if(i > 0)
