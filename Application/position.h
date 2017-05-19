@@ -18,7 +18,7 @@ void compute_mpu_infos (T_sensors *p_sensors, T_coord_3D data_asp, T_coord_3D da
 void tapping_capture (T_mpu_infos *p_mpu, float p_sample_time_s);
 void read_all(T_coord_3D *p_data_acc, T_coord_3D *p_data_asp, T_coord_3D *p_data_mag);
 int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init);
-void get_tom_tapped(T_mpu_infos *p_mpu);
+void get_tom_tapped(T_mpu_infos *p_mpu, float p_sample_time_s);
 float abs_angle_diff(float ang1, float ang2);
 
 #endif

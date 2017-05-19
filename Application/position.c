@@ -242,7 +242,7 @@ int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
     }
 }
 
-void get_tom_tapped(T_mpu_infos *p_mpu)
+void get_tom_tapped(T_mpu_infos *p_mpu, float p_sample_time_s)
 {
 	int i = 0;
 	for (i=0 ; i<NB_TOMS ; i++)
@@ -250,6 +250,8 @@ void get_tom_tapped(T_mpu_infos *p_mpu)
 		if(abs_angle_diff(p_mpu->tab_toms[i].z, p_mpu->ang[0].z) < p_mpu->tab_toms[i].rayon)
 		{
 			p_mpu->tap.num_tom = i;
+			// Velocite = vitesse angulaire au temps n-1
+			p_mpu->tap.velocite = (p_mpu->ang[2].y - p_mpu->ang[1].y)/p_sample_time_s;
 		}
 	}
 }
@@ -270,7 +272,7 @@ void compute_mpu_infos (T_sensors *p_sensors, T_coord_3D data_asp, T_coord_3D da
 
         // Si la calibration a ete effectuee et une frappe a ete detectee
         if(calibration == 0 && p_sensors->mpu[i].tap.tap_detected == 1)
-        	get_tom_tapped(&p_sensors->mpu[i]);
+        	get_tom_tapped(&p_sensors->mpu[i], sample_time_s);
     }
 }
 
