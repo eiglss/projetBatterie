@@ -2,8 +2,6 @@
 #include "position.h"
 #include "../Drivers/mpu9250.h"
 
-unsigned char test_tap;
-
 static mpu9250_t mpu9250;
 static ak8963_t ak8963;
 
@@ -19,9 +17,6 @@ void read_all(T_coord_3D *p_data_acc, T_coord_3D *p_data_asp, T_coord_3D *p_data
 	p_data_asp->z = mpu9250.gy.z;
 
 	ak8963_read_mag(&ak8963);
-	//p_data_mag->x = ak8963.mag.x;
-	//p_data_mag->y = ak8963.mag.y;
-	//p_data_mag->z = ak8963.mag.z;
 	p_data_mag->x = ak8963.compass;
 	p_data_mag->y = ak8963.compass;
 	p_data_mag->z = ak8963.compass;
@@ -153,7 +148,7 @@ void compute_angle (T_mpu_infos *p_mpu, float p_sample_time_s)
 
     p_mpu->ang[0] = add_coord_3D(scalar_time_coord_3D(gyr_angle, ALPHA_PARAM), scalar_time_coord_3D(acc_angle, 1 - ALPHA_PARAM));
     //p_mpu->ang[0].z = (gyr_angle.z*ALPHA_PARAM) + (p_mpu->mag[0].y*(1-ALPHA_PARAM));
-    p_mpu->ang[0].z = p_mpu->mag[0].y;
+    p_mpu->ang[0].z = p_mpu->mag[0].z;
 
     // Calcul de l'acceleration angulaire (derivee de la vitesse angulaire)
     // Operation : accel_angulaire = (vitesse_angulaire - vitesse_angulaire_prec) / T_echantillonage
@@ -161,19 +156,18 @@ void compute_angle (T_mpu_infos *p_mpu, float p_sample_time_s)
 
  }
 
-// Retourne 1 si une frappe est detectee, 0 sinon
 void tapping_capture (T_mpu_infos *p_mpu, float p_sample_time_s)
 {
     static float time_ms_last_tap = 0;
 
     time_ms_last_tap += p_sample_time_s;
-    if (fabs(p_mpu->aca[0].y) > MIN_ACA_TAPPING_CAPTURE && /*fabs(p_mpu->acc[0].z) > MIN_ACC_TAPPING_CAPTURE && */ time_ms_last_tap > MIN_TIME_LAST_TAP)
+    if (fabs(p_mpu->aca[0].y) > MIN_ACA_TAPPING_CAPTURE && time_ms_last_tap > MIN_TIME_LAST_TAP)
     {
         time_ms_last_tap = 0;
-        p_mpu->tap = 0;
+        p_mpu->tap.tap_detected = -1;
     }
     else
-    	p_mpu->tap = -1;
+    	p_mpu->tap.tap_detected = 0;
 }
 
 int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
@@ -184,7 +178,7 @@ int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
 	float norm_speed;
 	static int nb_passages[NB_OF_MPU];
 	static int left_toms[NB_OF_MPU];
-	static int left_tap[NB_OF_MPU]; // Nombre de fois à taper avant calibration
+	static int left_tap[NB_OF_MPU]; // Nombre de fois a taper avant calibration
 
 	if(init)
 	{
@@ -202,10 +196,10 @@ int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
 		{
 			if(left_tap[i] > 0)
 			{
-				if(p_sensors->mpu[i].tap >= 0)
+				if(p_sensors->mpu[i].tap.tap_detected == 1)
 				{
 					left_tap[i]--;
-					printf("TAPOK\n");
+					printf("Tap initiale\n");
 				}
 			}
 			else
@@ -217,7 +211,6 @@ int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
 				}
 				else
 				{
-					//printf("Bouge \n");
 					nb_passages[i] = 0;
 				}
 
@@ -226,7 +219,7 @@ int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
 					ok = 1;
 					for(j = p_nb_toms ; j > left_toms[i] ; j--)
 					{
-						if (abs_angle_diff(p_sensors->mpu[i].tab_toms[j-1].x, p_sensors->mpu[i].ang[0].z) < 10.)
+						if (abs_angle_diff(p_sensors->mpu[i].tab_toms[j-1].z, p_sensors->mpu[i].ang[0].z) < 10.)
 						{
 							ok = 0;
 							nb_passages[i] = 0; // Trop proches (< 10 deg)
@@ -236,9 +229,9 @@ int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
 					{
 						nb_passages[i] = 0;
 						left_toms[i]--;
-						p_sensors->mpu[i].tab_toms[left_toms[i]].x = p_sensors->mpu[i].ang[0].z;
+						p_sensors->mpu[i].tab_toms[left_toms[i]].z = p_sensors->mpu[i].ang[0].z;
 						p_sensors->mpu[i].tab_toms[left_toms[i]].rayon = 10;						// test : a enlever
-						printf("TOM OK %f\n", p_sensors->mpu[i].tab_toms[left_toms[i]].x);
+						printf("TOM initialise %f\n", p_sensors->mpu[i].tab_toms[left_toms[i]].z);
 					}
 				}
 			}
@@ -254,10 +247,9 @@ void get_tom_tapped(T_mpu_infos *p_mpu)
 	int i = 0;
 	for (i=0 ; i<NB_TOMS ; i++)
 	{
-		//printf("Get Tom : %f\n" ,abs_angle_diff(p_mpu->tab_toms[i].x, p_mpu->ang[0].z));
-		if(abs_angle_diff(p_mpu->tab_toms[i].x, p_mpu->ang[0].z) < p_mpu->tab_toms[i].rayon)
+		if(abs_angle_diff(p_mpu->tab_toms[i].z, p_mpu->ang[0].z) < p_mpu->tab_toms[i].rayon)
 		{
-			p_mpu->tap = i;
+			p_mpu->tap.num_tom = i;
 		}
 	}
 }
@@ -277,7 +269,7 @@ void compute_mpu_infos (T_sensors *p_sensors, T_coord_3D data_asp, T_coord_3D da
         tapping_capture (&p_sensors->mpu[i], sample_time_s);
 
         // Si la calibration a ete effectuee et une frappe a ete detectee
-        if(calibration == 0 && p_sensors->mpu[i].tap == 0)
+        if(calibration == 0 && p_sensors->mpu[i].tap.tap_detected == 1)
         	get_tom_tapped(&p_sensors->mpu[i]);
     }
 }
