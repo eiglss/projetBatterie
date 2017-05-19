@@ -8,38 +8,42 @@
 #include "Application/definitions.h"
 #include "Application/position.h"
 #include "Application/vector_tools.h"
+#include "font.h"
 
 int main(void)
 {
     /* local declaration */
-
+	int i = 0;
+	int j = 0;
+	int calibration = 1;
     T_sensors sensors;
-
     // Test
     T_coord_3D data_asp;
     T_coord_3D data_acc;
     T_coord_3D data_mag;
 
-    printf("Hello world!\n");
-
     /* initialization */
+    printf(DEFAULTCOLOR CURSORHOME CLEARSCREEN); /* Cleans the terminal */
+    printf("Initializing platform...\t");
     init_platform();
-
+    printf("[ "F_LIGHTGREEN"OK"DEFAULTCOLOR" ]\n");
+    printf("Starting timer...\t\t");
     timer_start(TIMER_0);
-    printf("Timer OK!\n");
-
-    init_all_mpu(&sensors);
-    printf("MPU Connected!\n");
-
-    printf("Lancement!\n");
-
-    /* Program statement */
-    int i = 0;
-    int j = 0;
-    int calibration = 1;
-
+    printf("[ "F_LIGHTGREEN"OK"DEFAULTCOLOR" ]\n");
+    printf("Initializing IMU...\t\t");
+    if(init_all_mpu(&sensors) == -1)
+    {
+    	printf("["F_LIGHTRED"FAIL"DEFAULTCOLOR"]\n");
+    	return EXIT_FAILURE;
+    }
+    else
+    {
+    	printf("[ "F_LIGHTGREEN"OK"DEFAULTCOLOR" ]\n");
+    }
+    printf("Calibration...\t\t\t");
     fonction_calibration(&sensors, NB_TOMS, 1);
-
+    printf("[ "F_LIGHTGREEN"OK"DEFAULTCOLOR" ]\n");
+    /* Program statement */
     while (!0)
     {
     	read_all(&data_acc, &data_asp, &data_mag);
