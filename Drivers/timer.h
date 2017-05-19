@@ -64,7 +64,7 @@
 #define TIMER_UP		0		/* timer/counter up */
 #define TIMER_DOWN		!UP		/* timer/counter down */
 
-#define timer_second(tick)	((tick)/100000000.)
+#define timer_second(tick)	((tick)/(double)XPAR_TMRCTR_0_CLOCK_FREQ_HZ)
 
 /*******************************     TYPES      *******************************/
 typedef struct
@@ -83,6 +83,7 @@ typedef struct
 void timer_start(axi_timer_t * timer);
 inline double timer_read(axi_timer_t * timer);
 inline void timer_pause(axi_timer_t * timer);
+inline void timer_resume(axi_timer_t * timer);
 double timer_stop(axi_timer_t * timer);
 double timer_restart(axi_timer_t * timer);
 
