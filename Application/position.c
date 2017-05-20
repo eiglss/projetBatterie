@@ -5,21 +5,21 @@
 static mpu9250_t mpu9250;
 static ak8963_t ak8963;
 
-void read_all(T_coord_3D *p_data_acc, T_coord_3D *p_data_asp, T_coord_3D *p_data_mag)
+void read_all(T_coord_3D* p_data_acc, T_coord_3D* p_data_asp, T_coord_3D* p_data_mag)
 {
 	// Capteur 1
 	mpu9250_read_all(&mpu9250);
-	p_data_acc->x = mpu9250.acc.x;
-	p_data_acc->y = mpu9250.acc.y;
-	p_data_acc->z = mpu9250.acc.z;
-	p_data_asp->x = mpu9250.gy.x;
-	p_data_asp->y = mpu9250.gy.y;
-	p_data_asp->z = mpu9250.gy.z;
+	p_data_acc[MAIN_D].x = mpu9250.acc.x;
+	p_data_acc[MAIN_D].y = mpu9250.acc.y;
+	p_data_acc[MAIN_D].z = mpu9250.acc.z;
+	p_data_asp[MAIN_D].x = mpu9250.gy.x;
+	p_data_asp[MAIN_D].y = mpu9250.gy.y;
+	p_data_asp[MAIN_D].z = mpu9250.gy.z;
 
 	ak8963_read_mag(&ak8963);
-	p_data_mag->x = ak8963.compass;
-	p_data_mag->y = ak8963.compass;
-	p_data_mag->z = ak8963.compass;
+	p_data_mag[MAIN_D].x = ak8963.compass;
+	p_data_mag[MAIN_D].y = ak8963.compass;
+	p_data_mag[MAIN_D].z = ak8963.compass;
 
 	// Capteurs autres
 	// ...
@@ -195,49 +195,52 @@ int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
     {
 		for (i=0;i<NB_OF_MPU;i++)
 		{
-			if(left_tap[i] > 0)
+			if(i | MAIN)
 			{
-				if(p_sensors->mpu[i].tap.tap_detected == 1)
+				if(left_tap[i] > 0)
 				{
-					left_tap[i]--;
-					printf("Tap initiale\n");
-				}
-			}
-			else
-			{
-				norm_speed = sqrt(pow(p_sensors->mpu[i].asp[0].x,2) + pow(p_sensors->mpu[i].asp[0].y,2) + pow(p_sensors->mpu[i].asp[0].z,2));
-				if(norm_speed < 100)
-				{
-					nb_passages[i] ++;
+					if(p_sensors->mpu[i].tap.tap_detected == 1)
+					{
+						left_tap[i]--;
+						printf("Tap initiale\n");
+					}
 				}
 				else
 				{
-					nb_passages[i] = 0;
-				}
-
-				if(nb_passages[i] >= 1000 && left_toms[i] > 0)
-				{
-					ok = 1;
-					for(j = p_nb_toms ; j > left_toms[i] ; j--)
+					norm_speed = sqrt(pow(p_sensors->mpu[i].asp[0].x,2) + pow(p_sensors->mpu[i].asp[0].y,2) + pow(p_sensors->mpu[i].asp[0].z,2));
+					if(norm_speed < 100)
 					{
-						if (abs_angle_diff(p_sensors->mpu[i].tab_toms[j-1].z, p_sensors->mpu[i].ang[0].z) < 10.)
-						{
-							ok = 0;
-							nb_passages[i] = 0; // Trop proches (< 10 deg)
-						}
+						nb_passages[i] ++;
 					}
-					if (ok)
+					else
 					{
 						nb_passages[i] = 0;
-						left_toms[i]--;
-						p_sensors->mpu[i].tab_toms[left_toms[i]].z = p_sensors->mpu[i].ang[0].z;
-						p_sensors->mpu[i].tab_toms[left_toms[i]].rayon = 10;						// test : a enlever
-						printf("TOM initialise %f\n", p_sensors->mpu[i].tab_toms[left_toms[i]].z);
+					}
+
+					if(nb_passages[i] >= 1000 && left_toms[i] > 0)
+					{
+						ok = 1;
+						for(j = p_nb_toms ; j > left_toms[i] ; j--)
+						{
+							if (abs_angle_diff(p_sensors->mpu[i].tab_toms[j-1].z, p_sensors->mpu[i].ang[0].z) < 10.)
+							{
+								ok = 0;
+								nb_passages[i] = 0; // Trop proches (< 10 deg)
+							}
+						}
+						if (ok)
+						{
+							nb_passages[i] = 0;
+							left_toms[i]--;
+							p_sensors->mpu[i].tab_toms[left_toms[i]].z = p_sensors->mpu[i].ang[0].z;
+							p_sensors->mpu[i].tab_toms[left_toms[i]].rayon = 10;						// test : a enlever
+							printf("TOM initialise %f\n", p_sensors->mpu[i].tab_toms[left_toms[i]].z);
+						}
 					}
 				}
+				if(left_toms[i]>0)
+					calibration_necessaire = 1;
 			}
-			if(left_toms[i]>0)
-				calibration_necessaire = 1;
 		}
 		return calibration_necessaire;
     }
@@ -257,7 +260,7 @@ void get_tom_tapped(T_mpu_infos *p_mpu, float p_sample_time_s)
 	}
 }
 
-void compute_mpu_infos (T_sensors *p_sensors, T_coord_3D data_asp, T_coord_3D data_acc, T_coord_3D data_mag, int calibration)
+void compute_mpu_infos (T_sensors *p_sensors, T_coord_3D* data_asp, T_coord_3D* data_acc, T_coord_3D* data_mag, int calibration)
 {
 	float sample_time_s = timer_restart(TIMER_0);
     int i = 0;
@@ -265,14 +268,14 @@ void compute_mpu_infos (T_sensors *p_sensors, T_coord_3D data_asp, T_coord_3D da
     {
         update_next_sample (&p_sensors->mpu[i]);
 
-        get_mpu_asp_acc_mag (&p_sensors->mpu[i], data_asp, data_acc, data_mag);
+        get_mpu_asp_acc_mag (&p_sensors->mpu[i], data_asp[i], data_acc[i], data_mag[i]);
 
         compute_angle(&p_sensors->mpu[i], sample_time_s);
 
         tapping_capture (&p_sensors->mpu[i], sample_time_s);
 
         // Si la calibration a ete effectuee et une frappe a ete detectee
-        if(calibration == 0 && p_sensors->mpu[i].tap.tap_detected == 1)
+        if(calibration == 0 && p_sensors->mpu[i].tap.tap_detected == 1 && (i | MAIN))
         	get_tom_tapped(&p_sensors->mpu[i], sample_time_s);
     }
 }

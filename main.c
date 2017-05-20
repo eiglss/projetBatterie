@@ -19,9 +19,9 @@ int main(void)
 	int calibration = 1;
     T_sensors sensors;
     // Test
-    T_coord_3D data_asp;
-    T_coord_3D data_acc;
-    T_coord_3D data_mag;
+    T_coord_3D data_asp[NB_OF_MPU];
+    T_coord_3D data_acc[NB_OF_MPU];
+    T_coord_3D data_mag[NB_OF_MPU];
 
     /* initialization */
     printf(DEFAULTCOLOR CURSORHOME CLEARSCREEN); /* Cleans the terminal */

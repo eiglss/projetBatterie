@@ -5,6 +5,13 @@
 #define NB_OF_MPU 1
 #define NB_TOMS 4
 
+#define MAIN_D 0
+#define MAIN_G 1
+#define PIED_D 2
+#define PIED_G 3
+#define MAIN (0 | 1)
+#define PIED (2 | 3)
+
 #define MIN_ACA_TAPPING_CAPTURE 70000
 #define MIN_ACC_TAPPING_CAPTURE 1
 #define MIN_TIME_LAST_TAP 0.09 // 9ms
