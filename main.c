@@ -8,11 +8,8 @@
 #include "Application/definitions.h"
 #include "Application/position.h"
 #include "Application/vector_tools.h"
-<<<<<<< HEAD
 #include "Application/communication.h"
-=======
 #include "font.h"
->>>>>>> 0711fa9a0042c1d6f62835e5e5c5be946b377354
 
 int main(void)
 {
@@ -33,9 +30,9 @@ int main(void)
     printf("[ "F_LIGHTGREEN"OK"DEFAULTCOLOR" ]\n");
     printf("Starting timer...\t\t");
     timer_start(TIMER_0);
-
     printf("[ "F_LIGHTGREEN"OK"DEFAULTCOLOR" ]\n");
     printf("Initializing IMU...\t\t");
+
     if(init_all_mpu(&sensors) == -1)
     {
     	printf("["F_LIGHTRED"FAIL"DEFAULTCOLOR"]\n");
