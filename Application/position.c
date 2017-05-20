@@ -25,11 +25,11 @@ void read_all(T_coord_3D *p_data_acc, T_coord_3D *p_data_asp, T_coord_3D *p_data
 	// ...
 }
 
-void init_all_mpu (T_sensors *p_sensors)
+int init_all_mpu (T_sensors *p_sensors)
 {
     // Init des MPU
-	mpu9250_initialization(&mpu9250, IIC_0, MPU9250_IIC);
-	ak8963_initialization(&ak8963, IIC_0, AK8963_ADDR);
+	if(mpu9250_initialization(&mpu9250, IIC_0, MPU9250_IIC) == -1) return -1;
+	if(ak8963_initialization(&ak8963, IIC_0, AK8963_ADDR) ==-1) return -1;
 
     int i, j;
     for (i=0;i<NB_OF_MPU;i++)
@@ -56,6 +56,7 @@ void init_all_mpu (T_sensors *p_sensors)
             p_sensors->mpu[i].mag[j].z = 0;
         }
     }
+    return 0;
 }
 
 void get_mpu_asp_acc_mag (T_mpu_infos *p_mpu, T_coord_3D p_raw_asp, T_coord_3D p_raw_acc, T_coord_3D p_raw_mag)
@@ -275,4 +276,3 @@ void compute_mpu_infos (T_sensors *p_sensors, T_coord_3D data_asp, T_coord_3D da
         	get_tom_tapped(&p_sensors->mpu[i], sample_time_s);
     }
 }
-
