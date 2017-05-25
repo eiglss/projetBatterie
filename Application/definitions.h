@@ -18,6 +18,12 @@
 
 #define ALPHA_PARAM 0.99
 
+//num_MIDI
+#define KICK 35 //pied
+#define SNARE 38 //gauche
+#define HIGH_TOM 50 //millieu gauche
+#define MIDDLE_TOM 43 //millieu droite
+#define FLOOR_TOM 41 //droite
 
 typedef struct
 {
