@@ -38,7 +38,7 @@ int main(void)
     }
     if(ak8963_initialization(&ak8963, IIC_0, AK8963_ADDR) == -1)
     {
-        printf("Failed to initialize MPU9250.\r\n");
+        printf("Failed to initialize AK8963.\r\n");
         return EXIT_FAILURE;
     }
     while(!0)
@@ -87,34 +87,34 @@ int main(void)
 
 /**** BITS ****/
 #ifndef BIT0
-	#define BIT0	0x01
+    #define BIT0    0x01
 #endif
 #ifndef BIT1
-	#define BIT1	0x02
+    #define BIT1    0x02
 #endif
 #ifndef BIT2
-	#define BIT2	0x04
+    #define BIT2    0x04
 #endif
 #ifndef BIT3
-	#define BIT3	0x08
+    #define BIT3    0x08
 #endif
 #ifndef BIT4
-	#define BIT4	0x10
+    #define BIT4    0x10
 #endif
 #ifndef BIT5
-	#define BIT5	0x20
+    #define BIT5    0x20
 #endif
 #ifndef BIT6
-	#define BIT6	0x40
+    #define BIT6    0x40
 #endif
 #ifndef BIT7
-	#define BIT7	0x80
+    #define BIT7    0x80
 #endif
 
 /**** IIC ADDRESS ****/
 /* MPU9250 */
 #define MPU9250_AD0 (0)
-#define MPU9250_IIC (0x68|MPU9250_AD0)
+#define MPU9250_ADDR (0x68|MPU9250_AD0)
 /* AK8963 */
 #define AK8963_ADDR (0x0C)
 
@@ -403,27 +403,27 @@ typedef struct
 typedef struct
 {
     /* iic */
-	axi_iic_t * iic;
-	uint8_t     address : 7;
+    axi_iic_t * iic;
+    uint8_t     address : 7;
     /* Gyroscope Features */
     uint8_t   gy_full_scale      : 2;
-    axis_3d_t gy; /* �/s */
+    axis_3d_t gy; /* Â°/s */
     /* Accelerometer Features */
     uint8_t   acc_full_scale      : 2;
-    axis_3d_t acc; /* g */
+    axis_3d_t acc; /* g (~9.81m/sÂ²) */
     /* Additional Features */
-    float temp_data; /* �C */
+    float temp_data; /* Â°C */
 }mpu9250_t;
 
 typedef struct
 {
     /* iic */
-	axi_iic_t * iic;
-	uint8_t     address : 7;
+    axi_iic_t * iic;
+    uint8_t     address : 7;
     /* Magnetometer Features */
     uint8_t   mag_full_scale : 1; /* 0: 14 bits precision; 1: 16 bits precision */
-    axis_3d_t mag; /* �T */
-    float compass; /* degree */
+    axis_3d_t mag; /* ÂµT */
+    axis_3d_t compass; /* Â° */
 }ak8963_t;
 
 /*******************************   FUNCTIONS    *******************************/

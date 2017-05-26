@@ -17,10 +17,10 @@
 #define GPIO_BTN GPIO_2
 
 /**** LEDS ****/
-#define BTN0	0x0001
-#define BTN1	0x0002
-#define BTN2	0x0004
-#define BTN3	0x0008
+#define BTN0    0x0001
+#define BTN1    0x0002
+#define BTN2    0x0004
+#define BTN3    0x0008
 
 /***************** Macros (Inline Functions) Definitions **********************/
 /******************************************************************************/
@@ -34,7 +34,7 @@
 * @note     1 = ON ; 0 = OFF.
 *
 *******************************************************************************/
-#define btn_read()	gpio_read(GPIO_BTN)&0x000F
+#define btn_read()  gpio_read(GPIO_BTN)&0x000F
 
 /***************** Macros (Inline Functions) Definitions **********************/
 /******************************************************************************/
@@ -48,6 +48,6 @@
 * @note     1 = ON ; 0 = OFF.
 *
 *******************************************************************************/
-#define btn_is_on(btn)	gpio_read(GPIO_BTN)&((btn)&0x000F)
+#define btn_is_on(btn)  gpio_read(GPIO_BTN)&((btn)&0x000F)
 
 #endif /* BUTTON_H_ */

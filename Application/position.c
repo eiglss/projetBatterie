@@ -17,9 +17,9 @@ void read_all(T_coord_3D* p_data_acc, T_coord_3D* p_data_asp, T_coord_3D* p_data
 	p_data_asp[MAIN_D].z = mpu9250.gy.z;
 
 	ak8963_read_mag(&ak8963);
-	p_data_mag[MAIN_D].x = ak8963.compass;
-	p_data_mag[MAIN_D].y = ak8963.compass;
-	p_data_mag[MAIN_D].z = ak8963.compass;
+	p_data_mag[MAIN_D].x = ak8963.compass.x;
+	p_data_mag[MAIN_D].y = ak8963.compass.y;
+	p_data_mag[MAIN_D].z = ak8963.compass.y;
 
 	// Capteurs autres
 	// ...
@@ -28,7 +28,7 @@ void read_all(T_coord_3D* p_data_acc, T_coord_3D* p_data_asp, T_coord_3D* p_data
 int init_all_mpu (T_sensors *p_sensors)
 {
     // Init des MPU
-	if(mpu9250_initialization(&mpu9250, IIC_0, MPU9250_IIC) == -1) return -1;
+	if(mpu9250_initialization(&mpu9250, IIC_0, MPU9250_ADDR) == -1) return -1;
 	if(ak8963_initialization(&ak8963, IIC_0, AK8963_ADDR) ==-1) return -1;
 
     int i, j;

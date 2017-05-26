@@ -52,8 +52,8 @@ int mpu9250_write(mpu9250_t * mpu9250, uint8_t * data, uint8_t length)
 *******************************************************************************/
 int mpu9250_read(mpu9250_t * mpu9250, uint8_t * data, uint8_t length)
 {
-	while(iic_bus_is_busy(mpu9250->iic));
-	return (iic_read(mpu9250->iic, mpu9250->address, data, length) == length)? 0 : -1;
+    while(iic_bus_is_busy(mpu9250->iic));
+    return (iic_read(mpu9250->iic, mpu9250->address, data, length) == length)? 0 : -1;
 }
 
 /******************************************************************************/
@@ -102,7 +102,7 @@ int mpu9250_read_register(mpu9250_t * mpu9250, uint8_t reg_addr, uint8_t * data,
     /* Program statement */
     while(iic_bus_is_busy(mpu9250->iic));
     if(iic_write(mpu9250->iic, mpu9250->address, tx_data, 1) != 1) return -1;
-	return (iic_read(mpu9250->iic, mpu9250->address, data, length) == length)? 0 : -1;
+    return (iic_read(mpu9250->iic, mpu9250->address, data, length) == length)? 0 : -1;
 }
 
 /******************************************************************************/
@@ -122,8 +122,8 @@ int mpu9250_read_register(mpu9250_t * mpu9250, uint8_t reg_addr, uint8_t * data,
 *******************************************************************************/
 int ak8963_write(ak8963_t * ak8963, uint8_t * data, uint8_t length)
 {
-	while(iic_bus_is_busy(ak8963->iic));
-	return (iic_write(ak8963->iic, ak8963->address, data, length) == length)? 0 : -1;
+    while(iic_bus_is_busy(ak8963->iic));
+    return (iic_write(ak8963->iic, ak8963->address, data, length) == length)? 0 : -1;
 }
 
 /******************************************************************************/
@@ -144,8 +144,8 @@ int ak8963_write(ak8963_t * ak8963, uint8_t * data, uint8_t length)
 *******************************************************************************/
 int ak8963_read(ak8963_t * ak8963, uint8_t * data, uint8_t length)
 {
-	while(iic_bus_is_busy(ak8963->iic));
-	return (iic_read(ak8963->iic, ak8963->address, data, length) == length)? 0 : -1;
+    while(iic_bus_is_busy(ak8963->iic));
+    return (iic_read(ak8963->iic, ak8963->address, data, length) == length)? 0 : -1;
 }
 
 /******************************************************************************/
@@ -193,8 +193,8 @@ int ak8963_read_register(ak8963_t * ak8963, uint8_t reg_addr, uint8_t * data, ui
     uint8_t tx_data[1] = {reg_addr};
     /* Program statement */
     while(iic_bus_is_busy(ak8963->iic));
-	if(iic_write(ak8963->iic, ak8963->address, tx_data, 1) != 1) return -1;
-	return (iic_read(ak8963->iic, ak8963->address, data, length) == length)? 0 : -1;
+    if(iic_write(ak8963->iic, ak8963->address, tx_data, 1) != 1) return -1;
+    return (iic_read(ak8963->iic, ak8963->address, data, length) == length)? 0 : -1;
 }
 
 /******************************************************************************/
@@ -202,7 +202,7 @@ int ak8963_read_register(ak8963_t * ak8963, uint8_t reg_addr, uint8_t * data, ui
 * Configure the precision of the gyroscope
 *
 * @param    mpu9250 is a pointer to the mpu9250_t instance
-* @param    scale the precision to be setting (0: +/-250�/s; 1: +/-4g; 2: +/-8g
+* @param    scale the precision to be setting (0: +/-250ï¿½/s; 1: +/-4g; 2: +/-8g
 *           3: +/-16g)
 *
 * @return   -1 if an error occurred else 0
@@ -213,12 +213,12 @@ int ak8963_read_register(ak8963_t * ak8963, uint8_t reg_addr, uint8_t * data, ui
 *******************************************************************************/
 int mpu9250_gy_scale(mpu9250_t * mpu9250, uint8_t scale)
 {
-	/* local declaration */
-	uint8_t gyro_config;
-	/* program statement */
-	if(mpu9250_read_register(mpu9250, MPU9250_GYRO_CONFIG, &gyro_config, 1) == -1) return -1;
-	gyro_config &= ~MPU9250_GYRO_FS_SEL;
-	gyro_config |= MPU9250_GYRO_FS_SEL&(scale<<3);
+    /* local declaration */
+    uint8_t gyro_config;
+    /* program statement */
+    if(mpu9250_read_register(mpu9250, MPU9250_GYRO_CONFIG, &gyro_config, 1) == -1) return -1;
+    gyro_config &= ~MPU9250_GYRO_FS_SEL;
+    gyro_config |= MPU9250_GYRO_FS_SEL&(scale<<3);
     if(mpu9250_write_register(mpu9250, MPU9250_GYRO_CONFIG, gyro_config) == -1) return -1;
     mpu9250->gy_full_scale = scale;
     return 0;
@@ -240,15 +240,15 @@ int mpu9250_gy_scale(mpu9250_t * mpu9250, uint8_t scale)
 *******************************************************************************/
 int mpu9250_acc_scale(mpu9250_t * mpu9250, uint8_t scale)
 {
-	/* local declaration */
-	uint8_t acc_config;
-	/* program statement */
-	if(mpu9250_read_register(mpu9250, MPU9250_ACCEL_CONFIG, &acc_config, 1) == -1) return -1;
-	acc_config &= ~MPU9250_ACCEL_FS_SEL;
-	acc_config |= MPU9250_ACCEL_FS_SEL&(scale<<3);
-	if(mpu9250_write_register(mpu9250, MPU9250_ACCEL_CONFIG, acc_config) == -1) return -1;
-	mpu9250->acc_full_scale = scale;
-	return 0;
+    /* local declaration */
+    uint8_t acc_config;
+    /* program statement */
+    if(mpu9250_read_register(mpu9250, MPU9250_ACCEL_CONFIG, &acc_config, 1) == -1) return -1;
+    acc_config &= ~MPU9250_ACCEL_FS_SEL;
+    acc_config |= MPU9250_ACCEL_FS_SEL&(scale<<3);
+    if(mpu9250_write_register(mpu9250, MPU9250_ACCEL_CONFIG, acc_config) == -1) return -1;
+    mpu9250->acc_full_scale = scale;
+    return 0;
 }
 
 /******************************************************************************/
@@ -262,20 +262,20 @@ int mpu9250_acc_scale(mpu9250_t * mpu9250, uint8_t scale)
 *
 * @note     IIC in the ak8963 instance must be initialize before using this
 *           function. The continuous mode 2 is configured after using this
-*           function. 14 bits correspond to 0.6 �T/LSB and 16 bits to 0.15�T/LSB
+*           function. 14 bits correspond to 0.6 ï¿½T/LSB and 16 bits to 0.15ï¿½T/LSB
 *
 *******************************************************************************/
 int ak8963_mag_scale(ak8963_t * ak8963, uint8_t scale)
 {
     /* local declaration */
-	uint8_t mag_cntl1;
-	/* program statement */
-	if(ak8963_read_register(ak8963, AK8963_CNTL1, &mag_cntl1, 1) == -1) return -1;
-	mag_cntl1 &= ~AK8963_MAG_BIT;
-	mag_cntl1 |= AK8963_MAG_BIT&(scale<<4);
-	if(ak8963_write_register(ak8963, AK8963_CNTL1, mag_cntl1) == -1) return -1;
-	ak8963->mag_full_scale = scale;
-	return 0;
+    uint8_t mag_cntl1;
+    /* program statement */
+    if(ak8963_read_register(ak8963, AK8963_CNTL1, &mag_cntl1, 1) == -1) return -1;
+    mag_cntl1 &= ~AK8963_MAG_BIT;
+    mag_cntl1 |= AK8963_MAG_BIT&(scale<<4);
+    if(ak8963_write_register(ak8963, AK8963_CNTL1, mag_cntl1) == -1) return -1;
+    ak8963->mag_full_scale = scale;
+    return 0;
 }
 
 /******************************************************************************/
@@ -284,31 +284,31 @@ int ak8963_mag_scale(ak8963_t * ak8963, uint8_t scale)
 *
 * @param    ak8963 is a pointer to the ak8963_t instance
 * @param    mode is the mode of the ak8963
-* 				- AK8963_MAG_MODE0 (0000): Power-down mode
-*				- AK8963_MAG_MODE1 (0001): Single measurement mode
-*				- AK8963_MAG_MODE2 (0010): Continuous measurement mode 1
-*				- AK8963_MAG_MODE3 (0110): Continuous measurement mode 2
-*				- AK8963_MAG_MODE4 (0100): External trigger measurement mode
-*				- AK8963_MAG_MODE5 (1000): Self-test mode
-*				- AK8963_MAG_MODE6 (1111): Fuse ROM access mode
-*				Other code settings are prohibited
+*               - AK8963_MAG_MODE0 (0000): Power-down mode
+*               - AK8963_MAG_MODE1 (0001): Single measurement mode
+*               - AK8963_MAG_MODE2 (0010): Continuous measurement mode 1
+*               - AK8963_MAG_MODE3 (0110): Continuous measurement mode 2
+*               - AK8963_MAG_MODE4 (0100): External trigger measurement mode
+*               - AK8963_MAG_MODE5 (1000): Self-test mode
+*               - AK8963_MAG_MODE6 (1111): Fuse ROM access mode
+*               Other code settings are prohibited
 *
 * @return   -1 if an error occurred else 0
 *
 * @note     IIC in the ak8963 instance must be initialize before using this
 *           function. The continuous mode 2 is configured after using this
-*           function. 14 bits correspond to 0.6 �T/LSB and 16 bits to 0.15�T/LSB
+*           function. 14 bits correspond to 0.6 ï¿½T/LSB and 16 bits to 0.15ï¿½T/LSB
 *
 *******************************************************************************/
 int ak8963_mag_mode(ak8963_t * ak8963, uint8_t mode)
 {
     /* local declaration */
-	uint8_t mag_cntl1;
-	/* program statement */
-	if(ak8963_read_register(ak8963, AK8963_CNTL1, &mag_cntl1, 1) == -1) return -1;
-	mag_cntl1 &= ~AK8963_MAG_MODE;
-	mag_cntl1 |= AK8963_MAG_MODE&mode;
-	return ak8963_write_register(ak8963, AK8963_CNTL1, mag_cntl1);
+    uint8_t mag_cntl1;
+    /* program statement */
+    if(ak8963_read_register(ak8963, AK8963_CNTL1, &mag_cntl1, 1) == -1) return -1;
+    mag_cntl1 &= ~AK8963_MAG_MODE;
+    mag_cntl1 |= AK8963_MAG_MODE&mode;
+    return ak8963_write_register(ak8963, AK8963_CNTL1, mag_cntl1);
 }
 
 /******************************************************************************/
@@ -326,15 +326,15 @@ int ak8963_mag_mode(ak8963_t * ak8963, uint8_t mode)
 *******************************************************************************/
 int mpu9250_filter(mpu9250_t * mpu9250, uint8_t filter)
 {
-	/* local declaration */
-	uint8_t config;
-	/* program statement */
-	if(mpu9250_read_register(mpu9250, MPU9250_CONFIG, &config, 1) == -1) return -1;
-	config &= ~MPU9250_DLPF_CFG;
-	config |= MPU9250_DLPF_CFG&filter;
-	if(mpu9250_write_register(mpu9250, MPU9250_CONFIG, config) == -1) return -1;
-	if(mpu9250_read_register(mpu9250, MPU9250_GYRO_CONFIG, &config, 1) == -1) return -1;
-	return mpu9250_write_register(mpu9250, MPU9250_GYRO_CONFIG, config|MPU9250_FCHOICE_B);
+    /* local declaration */
+    uint8_t config;
+    /* program statement */
+    if(mpu9250_read_register(mpu9250, MPU9250_CONFIG, &config, 1) == -1) return -1;
+    config &= ~MPU9250_DLPF_CFG;
+    config |= MPU9250_DLPF_CFG&filter;
+    if(mpu9250_write_register(mpu9250, MPU9250_CONFIG, config) == -1) return -1;
+    if(mpu9250_read_register(mpu9250, MPU9250_GYRO_CONFIG, &config, 1) == -1) return -1;
+    return mpu9250_write_register(mpu9250, MPU9250_GYRO_CONFIG, config|MPU9250_FCHOICE_B);
 }
 
 /******************************************************************************/
@@ -351,10 +351,10 @@ int mpu9250_filter(mpu9250_t * mpu9250, uint8_t filter)
 *******************************************************************************/
 int mpu9250_enable_int(mpu9250_t * mpu9250)
 {
-	/* local declaration */
-	uint8_t int_cfg;
-	/* program statement */
-	if(mpu9250_read_register(mpu9250, MPU9250_INT_PIN_CFG, &int_cfg, 1) == -1) return -1;
+    /* local declaration */
+    uint8_t int_cfg;
+    /* program statement */
+    if(mpu9250_read_register(mpu9250, MPU9250_INT_PIN_CFG, &int_cfg, 1) == -1) return -1;
     if(mpu9250_write_register(mpu9250, MPU9250_INT_PIN_CFG, int_cfg|(MPU9250_INT_ANYRD_2CLEAR|MPU9250_BYPASS_EN)) == -1) return -1;
     if(mpu9250_read_register(mpu9250, MPU9250_INT_ENABLE, &int_cfg, 1) == -1) return -1;
     return mpu9250_write_register(mpu9250, MPU9250_INT_ENABLE, int_cfg|MPU9250_RAW_RDY_EN);
@@ -374,7 +374,7 @@ int mpu9250_enable_int(mpu9250_t * mpu9250)
 *******************************************************************************/
 int mpu9250_initialization(mpu9250_t * mpu9250, axi_iic_t * iic, uint8_t address)
 {
-	mpu9250->iic = iic;
+    mpu9250->iic = iic;
     mpu9250->address = address;
     if(mpu9250_write_register(mpu9250, MPU9250_PWR_MGMT_1, 0) == -1) return -1;
     if(mpu9250_write_register(mpu9250, MPU9250_CONFIG, 0) == -1) return -1;
@@ -398,16 +398,17 @@ int mpu9250_initialization(mpu9250_t * mpu9250, axi_iic_t * iic, uint8_t address
 *******************************************************************************/
 int ak8963_initialization(ak8963_t * ak8963, axi_iic_t * iic, uint8_t address)
 {
-	ak8963->iic = iic;
+    ak8963->iic = iic;
     ak8963->address = address;
     if(ak8963_write_register(ak8963, AK8963_CNTL2, AK8963_MAG_SRST)) return -1; /* Soft reset */
+    if(ak8963_mag_scale(ak8963, 1)) return -1; /* 16-bit output */
     if(ak8963_mag_mode(ak8963, AK8963_MAG_MODE3) == -1) return -1; /* continuous mode 2 */
     return ak8963_mag_scale(ak8963, 1); /* 16 bits precision */
 }
 
 /******************************************************************************/
 /**
-* Transform gyroscope sensor raw data to �/s
+* Transform gyroscope sensor raw data to ï¿½/s
 *
 * @param    mpu9250 is a pointer to the mpu9250_t instance
 * @param    x,y,z are the raw data of the gyroscope sensor for x, y & z axis
@@ -464,7 +465,7 @@ void mpu9250_acc_g(mpu9250_t * mpu9250, const int16_t x, const int16_t y, const 
 *******************************************************************************/
 int mpu9250_temp_degC(mpu9250_t * mpu9250, const int16_t temp_out)
 {
-    if(in_range(temp_out, -20366, 21367)) /* -40�C <= temp_out <= 85�C ? */
+    if(in_range(temp_out, -20366, 21367)) /* -40ï¿½C <= temp_out <= 85ï¿½C ? */
     {
         mpu9250->temp_data = ((temp_out)/(float)333.87+(float)21.);
         return 0;
@@ -474,7 +475,7 @@ int mpu9250_temp_degC(mpu9250_t * mpu9250, const int16_t temp_out)
 
 /******************************************************************************/
 /**
-* Transform magnetometer sensor raw data to �T
+* Transform magnetometer sensor raw data to ï¿½T
 *
 * @param    ak8963 is a pointer to the ak8963_t instance
 * @param    x,y,z are the raw data of the magnetometer sensor for x, y & z axis
@@ -487,22 +488,58 @@ int mpu9250_temp_degC(mpu9250_t * mpu9250, const int16_t temp_out)
 int ak8963_mag_uT(ak8963_t * ak8963, const int16_t x, const int16_t y, const int16_t z)
 {
     /* Local declaration */
-    int16_t range = 32760>>(2*ak8963->mag_full_scale);
-    float scale = range/4192.;
+    int16_t range = (ak8963->mag_full_scale)? 32760 : 8190;
+    float scale = (ak8963->mag_full_scale)? 0.15 : 0.6;
     /* prorgam statement */
     if(in_range((int16_t)x, -range, range) && in_range((int16_t)y, -range, range) && in_range((int16_t)z, -range, range))
     {
-        ak8963->mag.x = x/scale;
-        ak8963->mag.y = y/scale;
-        ak8963->mag.z = z/scale;
+        ak8963->mag.x = x*scale;
+        ak8963->mag.y = y*scale;
+        ak8963->mag.z = z*scale;
         return 0;
     }
     return -1;
 }
 
+
 /******************************************************************************/
 /**
-* Transform magnetometer sensor raw data to degree (compass) and update �T data
+* compute the angle between the vector u+v+w and the main axis of u
+*
+* @param    ang_u is a pointer to the solution of the problem
+* @param    u,v,w are vector needed to compute angle
+*
+* @return   -1 if an error occurred else 0
+*
+* @note     to get a coherent result be sure that the three vectors are on
+*           different axis
+*
+*******************************************************************************/
+static int vector_to_angle(float * ang_u, float u, float v, float w)
+{
+    if(u == 0)
+    {
+        *ang_u = 90.;
+    }
+    else if(u > 0)
+    {
+        *ang_u = atan(sqrt(v*v+w*w)/u)*180./M_PI;
+    }
+    else if(u < 0)
+    {
+        *ang_u = atan(sqrt(v*v+w*w)/u)*180./M_PI+180;
+    }
+    else
+    {
+        return -1;
+    }
+    *ang_u = (v >= 0)? *ang_u: -(*ang_u);
+    return 0;
+}
+
+/******************************************************************************/
+/**
+* Transform magnetometer sensor raw data to degree (compass) and update ÂµT data
 *
 * @param    ak8963 is a pointer to the ak8963_t instance
 * @param    x,y,z are the raw data of the magnetometer sensor for x, y & z axis
@@ -514,9 +551,11 @@ int ak8963_mag_uT(ak8963_t * ak8963, const int16_t x, const int16_t y, const int
 *******************************************************************************/
 int ak8963_mag_compass(ak8963_t * ak8963, const int16_t x, const int16_t y, const int16_t z)
 {
-    	if(ak8963_mag_uT(ak8963, x, y, z) == -1) return -1;
-    	ak8963->compass = 90.-atan(ak8963->mag.y/ak8963->mag.x)*180./M_PI;
-        return 0;
+    if(ak8963_mag_uT(ak8963, x, y, z) == -1) return -1;
+    vector_to_angle(&ak8963->compass.x, x, y, z);
+    vector_to_angle(&ak8963->compass.y, y, x, z);
+    vector_to_angle(&ak8963->compass.z, z, x, z);
+    return 0;
 }
 
 
@@ -596,8 +635,8 @@ int mpu9250_read_temp(mpu9250_t * mpu9250)
 *
 * @param    ak8963 is a pointer to the ak8963_t instance
 *
-* @return   -1 if an error occurred else FALSE if data where not ready or an
-*           overflow occurred else TRUE if data are available.
+* @return   -1 if an error occurred or if data where not ready or an
+*           overflow occurred else 0 if data are available.
 *
 * @note     The data is automatically update in the mpu9250_t instance.
 *
@@ -609,12 +648,13 @@ int ak8963_read_mag(ak8963_t * ak8963)
     uint16_t x, y, z;
     /* Program statement */
     if(ak8963_read_register(ak8963, AK8963_ST1, mag, 8) == -1) return -1;
-    x = (uint16_t)mag[2]<<8|(uint16_t)mag[1];
-    y = (uint16_t)mag[4]<<8|(uint16_t)mag[3];
-    z = (uint16_t)mag[6]<<8|(uint16_t)mag[5];
+    if((mag[0]&(AK8963_MAG_DRDY|AK8963_MAG_DOR)) != AK8963_MAG_DRDY || mag[7]&AK8963_MAG_HOFL) return -1;
+    x = (((uint16_t)mag[2])<<8)|((uint16_t)mag[1]);
+    y = (((uint16_t)mag[4])<<8)|((uint16_t)mag[3]);
+    z = (((uint16_t)mag[6])<<8)|((uint16_t)mag[5]);
+    ak8963->mag_full_scale = (mag[7]&AK8963_MAG_BITM)>>4;
     if(ak8963_mag_compass(ak8963, x, y, z) == -1) return -1;
-    if(!(mag[0]&(AK8963_MAG_DRDY|AK8963_MAG_DOR)) || mag[7]&AK8963_MAG_HOFL) return FALSE;
-    return TRUE;
+    return 0;
 }
 
 /******************************************************************************/
