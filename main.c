@@ -56,6 +56,8 @@ int main(void)
         if(calibration == 1)
         	calibration = fonction_calibration(&sensors, NB_TOMS, 0);
 
+        //fonction_calcul_MIDI(&sensors, NB_TOMS);
+
         //envoyer_message(&sensors);
 
         //############################# TEST ##############################//
@@ -70,7 +72,8 @@ int main(void)
         	j ++;
         	i = 100;
         	printf("Frappe detectee : %d\n", sensors.mpu[0].tap.num_tom);
-        	printf("Angle : %f \n", sensors.mpu[0].ang[0].z);
+        	printf("Velocite : %f\n", sensors.mpu[0].tap.velocite);
+        	printf("\n");
         }
 
         if(i > 0)
