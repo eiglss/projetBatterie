@@ -67,6 +67,7 @@ int main(void)
         //printf("%f, %f \n", sensors.mpu[0].mag[0].x, sensors.mpu[0].mag[0].y);
         //printf("%f, %f, %f \n", sensors.mpu[0].ang[0].x, sensors.mpu[0].ang[1].x, sensors.mpu[0].ang[2].x);
 
+		#ifdef DEBUG
         if(sensors.mpu[0].tap.tap_detected == 1 && calibration != 1)
         {
         	j ++;
@@ -85,7 +86,7 @@ int main(void)
         {
         	led_write(0);
         }
-
+		#endif
         //############################# FIN TEST ##############################//
     }
 

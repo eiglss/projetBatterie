@@ -5,6 +5,8 @@
 #define NB_OF_MPU 1
 #define NB_TOMS 1
 
+#define DEBUG
+
 #define MAIN_D 0
 #define MAIN_G 1
 #define PIED_D 2

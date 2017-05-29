@@ -12,8 +12,10 @@ void envoyer_message(T_sensors *p_sensors)
     for (i=0;i<NB_OF_MPU;i++)
     {
     	// Envoi d'une trame de detection de frappe
-    	//if(p_sensors->mpu[i].tap.tap_detected)
+    	if(p_sensors->mpu[i].tap.tap_detected  == 1)
+    	{
 
+    	}
     }
 }
 

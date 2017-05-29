@@ -203,11 +203,9 @@ int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
 					if(p_sensors->mpu[i].tap.tap_detected == 1)
 					{
 						left_tap[i]--;
-						printf("Tap initiale\n");
 						if (left_tap[i] == 0)
 		                {
 							zero_point = p_sensors->mpu[i].ang[0].z;
-							printf("zero_point %f\n", zero_point);
 		                }
 					}
 				}
@@ -241,8 +239,6 @@ int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
 							p_sensors->mpu[i].tab_toms[left_toms[i]].z = p_sensors->mpu[i].ang[0].z;
 							p_sensors->mpu[i].tab_toms[left_toms[i]].rayon = 10;						// test : a enlever
 							p_sensors->mpu[i].tab_toms[left_toms[i]].num_MIDI = 0;
-							printf("TOM initialise %f\n", p_sensors->mpu[i].tab_toms[left_toms[i]].z);
-							printf("num_MIDI initial %d \n", p_sensors->mpu[i].tab_toms[left_toms[i]].num_MIDI);
 						}
 					}
 				}
@@ -291,10 +287,10 @@ void compute_mpu_infos (T_sensors *p_sensors, T_coord_3D* data_asp, T_coord_3D* 
 void fonction_calcul_MIDI(T_sensors *p_sensors, int p_nb_toms)
 {
 	int i, j, k;
-	printf("%d \n", p_sensors->mpu[0].tab_toms[p_nb_toms-1].num_MIDI);
-	printf("%d \n", p_sensors->mpu[0].tab_toms[p_nb_toms-2].num_MIDI);
-	printf("%d \n", p_sensors->mpu[0].tab_toms[p_nb_toms-3].num_MIDI);
-	printf("%d \n", p_sensors->mpu[0].tab_toms[p_nb_toms-4].num_MIDI);
+	//printf("%d \n", p_sensors->mpu[0].tab_toms[p_nb_toms-1].num_MIDI);
+	//printf("%d \n", p_sensors->mpu[0].tab_toms[p_nb_toms-2].num_MIDI);
+	//printf("%d \n", p_sensors->mpu[0].tab_toms[p_nb_toms-3].num_MIDI);
+	//printf("%d \n", p_sensors->mpu[0].tab_toms[p_nb_toms-4].num_MIDI);
 	//calcul la posion de toms
 	/*
 	for (i=0;i<NB_OF_MPU;i++){
