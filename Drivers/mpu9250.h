@@ -422,8 +422,9 @@ typedef struct
     uint8_t     address : 7;
     /* Magnetometer Features */
     uint8_t   mag_full_scale : 1; /* 0: 14 bits precision; 1: 16 bits precision */
-    axis_3d_t mag; /* ÂµT */
-    axis_3d_t compass; /* Â° */
+    axis_3d_t hadj;
+    axis_3d_t mag; /* µT */
+    axis_3d_t compass; /* ° */
 }ak8963_t;
 
 /*******************************   FUNCTIONS    *******************************/
