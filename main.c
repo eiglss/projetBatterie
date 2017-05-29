@@ -50,17 +50,17 @@ int main(void)
     while (!0)
     {
     	// Lecture
-    	read_all(&data_acc, &data_asp, &data_mag);
+    	read_all(data_acc, data_asp, data_mag);
         compute_mpu_infos (&sensors, data_asp, data_acc, data_mag, calibration);
 
         if(calibration == 1)
         	calibration = fonction_calibration(&sensors, NB_TOMS, 0);
 
-        envoyer_message(&sensors);
+        //envoyer_message(&sensors);
 
         //############################# TEST ##############################//
 
-        printf("%f \n", sensors.mpu[0].ang[0].z);
+        //printf("%f \n", sensors.mpu[0].ang[0].z);
         //printf("%f\n", sensors.mpu[0].mag[0].z);
         //printf("%f, %f \n", sensors.mpu[0].mag[0].x, sensors.mpu[0].mag[0].y);
         //printf("%f, %f, %f \n", sensors.mpu[0].ang[0].x, sensors.mpu[0].ang[1].x, sensors.mpu[0].ang[2].x);

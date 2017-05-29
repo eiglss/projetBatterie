@@ -165,7 +165,7 @@ void tapping_capture (T_mpu_infos *p_mpu, float p_sample_time_s)
     if (fabs(p_mpu->aca[0].y) > MIN_ACA_TAPPING_CAPTURE && time_ms_last_tap > MIN_TIME_LAST_TAP)
     {
         time_ms_last_tap = 0;
-        p_mpu->tap.tap_detected = -1;
+        p_mpu->tap.tap_detected = 1;
     }
     else
     	p_mpu->tap.tap_detected = 0;
@@ -195,7 +195,7 @@ int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
     {
 		for (i=0;i<NB_OF_MPU;i++)
 		{
-			if(i | MAIN)
+			if(i == MAIN_G || i == MAIN_D)
 			{
 				if(left_tap[i] > 0)
 				{
@@ -275,7 +275,7 @@ void compute_mpu_infos (T_sensors *p_sensors, T_coord_3D* data_asp, T_coord_3D* 
         tapping_capture (&p_sensors->mpu[i], sample_time_s);
 
         // Si la calibration a ete effectuee et une frappe a ete detectee
-        if(calibration == 0 && p_sensors->mpu[i].tap.tap_detected == 1 && (i | MAIN))
+        if(calibration == 0 && p_sensors->mpu[i].tap.tap_detected == 1 && (i == MAIN_G || i == MAIN_D))
         	get_tom_tapped(&p_sensors->mpu[i], sample_time_s);
     }
 }
