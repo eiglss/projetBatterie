@@ -362,6 +362,33 @@ int mpu9250_enable_int(mpu9250_t * mpu9250)
 
 /******************************************************************************/
 /**
+* sensitivity adjustment of the ak8963
+*
+* @param    ak8963 is a pointer to the ak8963_t instance
+*
+* @return   -1 if an error occurred else 0
+*
+* @note     The data is automatically update in the ak8963_t instance
+*
+*******************************************************************************/
+int ak8963_sensitivity_adj(ak8963_t * ak8963)
+{
+    /* local declaration */
+    uint8_t asa[3];
+    /* program statement */
+    if(ak8963_write_register(ak8963, AK8963_CNTL1, AK8963_MAG_MODE0)) return -1; /* Power-down mode */
+    if(ak8963_write_register(ak8963, AK8963_CNTL1, AK8963_MAG_MODE6)) return -1; /* Fuse ROM access mode */
+    if(ak8963_read_register(ak8963, AK8963_MAG_ASAX, asa, 3) == -1) return -1;
+    if(ak8963_write_register(ak8963, AK8963_CNTL1, AK8963_MAG_MODE0)) return -1; /* Power-down mode */
+    ak8963->hadj.x = ((float)asa[0]-128)/256.+1.;
+    ak8963->hadj.y = ((float)asa[1]-128)/256.+1.;
+    ak8963->hadj.z = ((float)asa[2]-128)/256.+1.;
+    return ak8963_mag_scale(ak8963, 1); /* 16 bits precision */
+}
+
+
+/******************************************************************************/
+/**
 * Enable all the sensor of the mpu9250, with no filtering and no interruption
 *
 * @param    mpu9250 is a pointer to the mpu9250_t instance
@@ -401,6 +428,7 @@ int ak8963_initialization(ak8963_t * ak8963, axi_iic_t * iic, uint8_t address)
     ak8963->iic = iic;
     ak8963->address = address;
     if(ak8963_write_register(ak8963, AK8963_CNTL2, AK8963_MAG_SRST)) return -1; /* Soft reset */
+    if(ak8963_sensitivity_adj(ak8963)) return -1;
     if(ak8963_mag_scale(ak8963, 1)) return -1; /* 16-bit output */
     if(ak8963_mag_mode(ak8963, AK8963_MAG_MODE3) == -1) return -1; /* continuous mode 2 */
     return ak8963_mag_scale(ak8963, 1); /* 16 bits precision */
@@ -475,7 +503,7 @@ int mpu9250_temp_degC(mpu9250_t * mpu9250, const int16_t temp_out)
 
 /******************************************************************************/
 /**
-* Transform magnetometer sensor raw data to ï¿½T
+* Transform magnetometer sensor raw data to µT
 *
 * @param    ak8963 is a pointer to the ak8963_t instance
 * @param    x,y,z are the raw data of the magnetometer sensor for x, y & z axis
@@ -493,9 +521,9 @@ int ak8963_mag_uT(ak8963_t * ak8963, const int16_t x, const int16_t y, const int
     /* prorgam statement */
     if(in_range((int16_t)x, -range, range) && in_range((int16_t)y, -range, range) && in_range((int16_t)z, -range, range))
     {
-        ak8963->mag.x = x*scale;
-        ak8963->mag.y = y*scale;
-        ak8963->mag.z = z*scale;
+        ak8963->mag.x = x*scale*(ak8963->hadj.x);
+        ak8963->mag.y = y*scale*(ak8963->hadj.y);
+        ak8963->mag.z = z*scale*(ak8963->hadj.z);
         return 0;
     }
     return -1;
