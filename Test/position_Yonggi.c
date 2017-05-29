@@ -18,23 +18,9 @@ void read_all(T_coord_3D* p_data_acc, T_coord_3D* p_data_asp, T_coord_3D* p_data
 	p_data_asp[MAIN_D].z = mpu9250.gy.z;
 
 	ak8963_read_mag(&ak8963);
-	p_data_mag[MAIN_D].x = ak8963.compass;
-	p_data_mag[MAIN_D].y = ak8963.compass;
-	p_data_mag[MAIN_D].z = ak8963.compass;
-
-	// Capteur 2
-	mpu9250_read_all(&mpu9250);
-	p_data_acc[MAIN_G].x = mpu9250.acc.x;
-	p_data_acc[MAIN_G].y = mpu9250.acc.y;
-	p_data_acc[MAIN_G].z = mpu9250.acc.z;
-	p_data_asp[MAIN_G].x = mpu9250.gy.x;
-	p_data_asp[MAIN_G].y = mpu9250.gy.y;
-	p_data_asp[MAIN_G].z = mpu9250.gy.z;
-
-	ak8963_read_mag(&ak8963);
-	p_data_mag[MAIN_G].x = ak8963.compass;
-	p_data_mag[MAIN_G].y = ak8963.compass;
-	p_data_mag[MAIN_G].z = ak8963.compass;
+	p_data_mag[MAIN_D].x = ak8963.compass.x;
+	p_data_mag[MAIN_D].y = ak8963.compass.y;
+	p_data_mag[MAIN_D].z = ak8963.compass.y;
 
 	// Capteurs autres
 	// ...
@@ -43,7 +29,7 @@ void read_all(T_coord_3D* p_data_acc, T_coord_3D* p_data_asp, T_coord_3D* p_data
 int init_all_mpu (T_sensors *p_sensors)
 {
     // Init des MPU
-	if(mpu9250_initialization(&mpu9250, IIC_0, MPU9250_IIC) == -1) return -1;
+	if(mpu9250_initialization(&mpu9250, IIC_0, MPU9250_ADDR) == -1) return -1;
 	if(ak8963_initialization(&ak8963, IIC_0, AK8963_ADDR) ==-1) return -1;
 
     int i, j;
@@ -180,7 +166,7 @@ void tapping_capture (T_mpu_infos *p_mpu, float p_sample_time_s)
     if (fabs(p_mpu->aca[0].y) > MIN_ACA_TAPPING_CAPTURE && time_ms_last_tap > MIN_TIME_LAST_TAP)
     {
         time_ms_last_tap = 0;
-        p_mpu->tap.tap_detected = -1;
+        p_mpu->tap.tap_detected = 1;
     }
     else
     	p_mpu->tap.tap_detected = 0;
@@ -210,7 +196,7 @@ int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
     {
 		for (i=0;i<NB_OF_MPU;i++)
 		{
-			if( (i == MAIN_D) || (i  == MAIN_G))
+			if(i == MAIN_G || i == MAIN_D)
 			{
 				if(left_tap[i] > 0)
 				{
@@ -218,10 +204,13 @@ int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
 					{
 						left_tap[i]--;
 						printf("Tap initiale\n");
+						/*
 						if (left_tap[i] == 1)
-                        {
-                            zero_point = p_sensors->mpu[i].ang[0].z;
-                        }
+		                {
+							zero_point = p_sensors->mpu[i].ang[0].z;
+							printf("zero_point %f\n", zero_point);
+		                }
+						*/
 					}
 				}
 				else
@@ -253,8 +242,9 @@ int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
 							left_toms[i]--;
 							p_sensors->mpu[i].tab_toms[left_toms[i]].z = p_sensors->mpu[i].ang[0].z;
 							p_sensors->mpu[i].tab_toms[left_toms[i]].rayon = 10;						// test : a enlever
-							p_sensors->mpu[i].tab_toms[left_toms[i]].num_MIDI = 0;
-                            printf("TOM initialise %f\n", p_sensors->mpu[i].tab_toms[left_toms[i]].z);
+							//p_sensors->mpu[i].tab_toms[left_toms[i]].num_MIDI = 0;
+							//printf("TOM initialise %f\n", p_sensors->mpu[i].tab_toms[left_toms[i]].z);
+							printf("num_MIDI initial %d \n", p_sensors->mpu[i].tab_toms[left_toms[i]].num_MIDI);
 						}
 					}
 				}
@@ -265,50 +255,6 @@ int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
 		return calibration_necessaire;
     }
 }
-
-void fonction_calcul_MIDI(T_sensors *p_sensors, int p_nb_toms)
-{
-	int i, j, k;
-	//calcul la posion de toms
-	for (i=0;i<NB_OF_MPU;i++){
-		if( (i == MAIN_D) || (i == MAIN_G)){
-			for (j=0;j<p_nb_toms;j++){
-				for (k=0;k<p_nb_toms;k++){
-					if(j!=k){
-						if((p_sensors->mpu[i].tab_toms[j].z - zero_point) > (p_sensors->mpu[i].tab_toms[k].z - zero_point)){
-							p_sensors->mpu[i].tab_toms[j].num_MIDI++;
-						}
-		       		}
-		   		}
-        	}
-			//Donne Numero de MIDI
-			//#define KICK 35 //pied
-			//#define SNARE 38 //gauche
-			//#define HIGH_TOM 50 //millieu gauche
-			//#define MIDDLE_TOM 43 //millieu droite
-			//#define FLOOR_TOM 41 //droite
-        	for (j=0;j<p_nb_toms;j++){
-            	switch (p_sensors->mpu[i].tab_toms[j].num_MIDI){
-                	case 0 :
-                    	p_sensors->mpu[i].tab_toms[j].num_MIDI = SNARE;
-                		break;
-                	case 1 :
-                    	p_sensors->mpu[i].tab_toms[j].num_MIDI = HIGH_TOM;
-                		break;
-                	case 2 :
-                    	p_sensors->mpu[i].tab_toms[j].num_MIDI = MIDDLE_TOM;
-                		break;
-                	case 3 :
-                    	p_sensors->mpu[i].tab_toms[j].num_MIDI = FLOOR_TOM;
-                		break;
-                	default:
-                    	printf("Erreur affectation num MIDI\n");
-                		break;
-            	}//end of "switch"
-        	}//end of "for (j=0;j<p_nb_toms;j++)""
-		}//end of "if( (i == MAIN_D) || (i == MAIN_G))""
-	}//end of "for (i=0;i<NB_OF_MPU;i++)""
-}//end of "void fonction_calcul_MIDI"
 
 void get_tom_tapped(T_mpu_infos *p_mpu, float p_sample_time_s)
 {
@@ -339,7 +285,52 @@ void compute_mpu_infos (T_sensors *p_sensors, T_coord_3D* data_asp, T_coord_3D* 
         tapping_capture (&p_sensors->mpu[i], sample_time_s);
 
         // Si la calibration a ete effectuee et une frappe a ete detectee
-        if(calibration == 0 && p_sensors->mpu[i].tap.tap_detected == 1 && (i == MAIN_D || i == MAIN_G)
+        if(calibration == 0 && p_sensors->mpu[i].tap.tap_detected == 1 && (i == MAIN_G || i == MAIN_D))
         	get_tom_tapped(&p_sensors->mpu[i], sample_time_s);
     }
 }
+
+void fonction_calcul_MIDI(T_sensors *p_sensors, int p_nb_toms)
+{
+	int i, j, k;
+	printf("%d \n", p_sensors->mpu[0].tab_toms[p_nb_toms].num_MIDI);
+	printf("%d \n", p_sensors->mpu[0].tab_toms[p_nb_toms-1].num_MIDI);
+	printf("%d \n", p_sensors->mpu[0].tab_toms[p_nb_toms-2].num_MIDI);
+	printf("%d \n", p_sensors->mpu[0].tab_toms[p_nb_toms-3].num_MIDI);
+	//calcul la posion de toms
+	/*
+	for (i=0;i<NB_OF_MPU;i++){
+		if( (i == MAIN_D) || (i == MAIN_G)){
+			for (j=0;j<p_nb_toms;j++){
+				for (k=0;k<p_nb_toms;k++){
+					if(j!=k){						
+						if((p_sensors->mpu[i].tab_toms[j].z) > (p_sensors->mpu[i].tab_toms[k].z)){
+							p_sensors->mpu[i].tab_toms[j].num_MIDI++;
+						}
+		       		}
+		   		}
+        	}
+			//Donne Numero de MIDI
+			for (j=0;j<p_nb_toms;j++){
+            	switch (p_sensors->mpu[i].tab_toms[j].num_MIDI){
+                	case 0 :
+                    	p_sensors->mpu[i].tab_toms[j].num_MIDI = SNARE;
+                		break;
+                	case 1 :
+                    	p_sensors->mpu[i].tab_toms[j].num_MIDI = HIGH_TOM;
+                		break;
+                	case 2 :
+                    	p_sensors->mpu[i].tab_toms[j].num_MIDI = MIDDLE_TOM;
+                		break;
+                	case 3 :
+                    	p_sensors->mpu[i].tab_toms[j].num_MIDI = FLOOR_TOM;
+                		break;
+                	default:
+                    	printf("Erreur affectation num MIDI\n");
+                		break;
+            	}//end of "switch"
+        	}//end of "for (j=0;j<p_nb_toms;j++)""
+		}//end of "if( (i == MAIN_D) || (i == MAIN_G))""
+	}//end of "for (i=0;i<NB_OF_MPU;i++)""
+	*/
+}//end of "void fonction_calcul_MIDI"
