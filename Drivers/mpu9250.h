@@ -31,7 +31,7 @@ int main(void)
     // initialization
     init_platform();
     // Program statement
-    if(mpu9250_initialization(&mpu9250, IIC_0, MPU9250_IIC) == -1)
+    if(mpu9250_initialization(&mpu9250, IIC_0, MPU9250_ADDR) == -1)
     {
         printf("Failed to initialize MPU9250.\r\n");
         return EXIT_FAILURE;
@@ -41,6 +41,7 @@ int main(void)
         printf("Failed to initialize AK8963.\r\n");
         return EXIT_FAILURE;
     }
+    ak8963_offset_adj(&ak8963, -52.2457, -48.8168, -6.6129);
     while(!0)
     {
         if(mpu9250_read_all(&mpu9250) == -1)
@@ -407,12 +408,12 @@ typedef struct
     uint8_t     address : 7;
     /* Gyroscope Features */
     uint8_t   gy_full_scale      : 2;
-    axis_3d_t gy; /* Â°/s */
+    axis_3d_t gy; /* Ã‚Â°/s */
     /* Accelerometer Features */
     uint8_t   acc_full_scale      : 2;
-    axis_3d_t acc; /* g (~9.81m/sÂ²) */
+    axis_3d_t acc; /* g (~9.81m/sÃ‚Â²) */
     /* Additional Features */
-    float temp_data; /* Â°C */
+    float temp_data; /* Ã‚Â°C */
 }mpu9250_t;
 
 typedef struct
@@ -423,6 +424,7 @@ typedef struct
     /* Magnetometer Features */
     uint8_t   mag_full_scale : 1; /* 0: 14 bits precision; 1: 16 bits precision */
     axis_3d_t hadj;
+    axis_3d_t offset;
     axis_3d_t mag; /* µT */
     axis_3d_t compass; /* ° */
 }ak8963_t;
@@ -448,6 +450,7 @@ int mpu9250_filter(mpu9250_t * mpu9250, uint8_t filter);
 /**** INTERRUPTION ****/
 int mpu9250_enable_int(mpu9250_t * mpu9250);
 /**** INITIALIZATION ****/
+void ak8963_offset_adj(ak8963_t * ak8963, float x, float y, float z);
 int mpu9250_initialization(mpu9250_t * mpu9250, axi_iic_t * iic, uint8_t address);
 int ak8963_initialization(ak8963_t * ak8963, axi_iic_t * iic, uint8_t address);
 /**** CONVERSIONS ****/
