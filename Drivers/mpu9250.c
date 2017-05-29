@@ -645,13 +645,13 @@ int ak8963_read_mag(ak8963_t * ak8963)
 {
     /* Local declaration */
     uint8_t mag[8];
-    uint16_t x, y, z;
+    int16_t x, y, z;
     /* Program statement */
     if(ak8963_read_register(ak8963, AK8963_ST1, mag, 8) == -1) return -1;
-    if((mag[0]&(AK8963_MAG_DRDY|AK8963_MAG_DOR)) != AK8963_MAG_DRDY || mag[7]&AK8963_MAG_HOFL) return -1;
-    x = (((uint16_t)mag[2])<<8)|((uint16_t)mag[1]);
-    y = (((uint16_t)mag[4])<<8)|((uint16_t)mag[3]);
-    z = (((uint16_t)mag[6])<<8)|((uint16_t)mag[5]);
+    if(((mag[0]&(AK8963_MAG_DRDY|AK8963_MAG_DOR)) != AK8963_MAG_DRDY) || mag[7]&AK8963_MAG_HOFL) return -1;
+    x = ((int16_t)mag[2]<<8)|mag[1];
+    y = ((int16_t)mag[4]<<8)|mag[3];
+    z = ((int16_t)mag[6]<<8)|mag[5];
     ak8963->mag_full_scale = (mag[7]&AK8963_MAG_BITM)>>4;
     if(ak8963_mag_compass(ak8963, x, y, z) == -1) return -1;
     return 0;
