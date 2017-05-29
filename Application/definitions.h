@@ -14,8 +14,7 @@
 #define MAIN (0 | 1)
 #define PIED (2 | 3)
 
-#define MIN_ACA_TAPPING_CAPTURE 70000
-#define MIN_ACC_TAPPING_CAPTURE 1
+#define MIN_ACA_TAPPING_CAPTURE 50000
 #define MIN_TIME_LAST_TAP 0.09 // 9ms
 
 #define ALPHA_PARAM 0.99

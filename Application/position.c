@@ -143,7 +143,7 @@ void compute_angle (T_mpu_infos *p_mpu, float p_sample_time_s)
     // Calcul de l'angle
     T_coord_3D gyr_angle, acc_angle;
 
-    acc_angle.y = atan(p_mpu->acc[0].x/sqrt(pow(p_mpu->acc[0].y, 2) + pow(p_mpu->acc[0].z, 2))) * 180./M_PI;
+    acc_angle.y = -1*atan(p_mpu->acc[0].x/sqrt(pow(p_mpu->acc[0].y, 2) + pow(p_mpu->acc[0].z, 2))) * 180./M_PI;
     acc_angle.x = atan(p_mpu->acc[0].y/sqrt(pow(p_mpu->acc[0].x, 2) + pow(p_mpu->acc[0].z, 2))) * 180./M_PI;
 
     gyr_angle = add_coord_3D(scalar_time_coord_3D(p_mpu->asp[0], p_sample_time_s), p_mpu->ang[1]);
@@ -202,6 +202,9 @@ int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
 				{
 					if(p_sensors->mpu[i].tap.tap_detected == 1)
 					{
+						#ifdef DEBUG
+							printf("Tap initiale \n");
+						#endif
 						left_tap[i]--;
 						if (left_tap[i] == 0)
 		                {
@@ -239,6 +242,9 @@ int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
 							p_sensors->mpu[i].tab_toms[left_toms[i]].z = p_sensors->mpu[i].ang[0].z;
 							p_sensors->mpu[i].tab_toms[left_toms[i]].rayon = 10;						// test : a enlever
 							p_sensors->mpu[i].tab_toms[left_toms[i]].num_MIDI = 0;
+							#ifdef DEBUG
+								printf("Tom %d initialise a l'angle %f\n", left_toms[i], p_sensors->mpu[i].ang[0].z);
+							#endif
 						}
 					}
 				}
