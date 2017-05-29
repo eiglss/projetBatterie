@@ -14,7 +14,7 @@ void envoyer_message(T_sensors *p_sensors)
     	// Envoi d'une trame de detection de frappe
     	if(p_sensors->mpu[i].tap.tap_detected  == 1)
     	{
-
+    		printf("%1.0d%1.0d", p_sensors->mpu[i].tap.num_tom , (int)p_sensors->mpu[i].tap.velocite);
     	}
     }
 }

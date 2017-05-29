@@ -56,6 +56,10 @@ int main(void)
         if(calibration == 1)
         	calibration = fonction_calibration(&sensors, NB_TOMS, 0);
 
+        if(calibration == 0)
+        	envoyer_message(&sensors);
+
+
         //fonction_calcul_MIDI(&sensors, NB_TOMS);
 
         //envoyer_message(&sensors);
