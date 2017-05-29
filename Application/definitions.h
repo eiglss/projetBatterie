@@ -3,7 +3,7 @@
 
 #define NB_OF_STORED_SAMPLES 3
 #define NB_OF_MPU 1
-#define NB_TOMS 4
+#define NB_TOMS 1
 
 #define MAIN_D 0
 #define MAIN_G 1

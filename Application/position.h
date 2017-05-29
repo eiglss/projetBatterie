@@ -20,5 +20,6 @@ void read_all(T_coord_3D* p_data_acc, T_coord_3D* p_data_asp, T_coord_3D* p_data
 int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init);
 void get_tom_tapped(T_mpu_infos *p_mpu, float p_sample_time_s);
 float abs_angle_diff(float ang1, float ang2);
+void fonction_calcul_MIDI(T_sensors *p_sensors, int p_nb_toms);
 
 #endif
