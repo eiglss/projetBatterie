@@ -5,6 +5,7 @@
 #include "Drivers/led.h"
 #include "Drivers/switch.h"
 #include "Drivers/timer.h"
+#include "Drivers/button.h"
 #include "Application/definitions.h"
 #include "Application/position.h"
 #include "Application/vector_tools.h"
@@ -14,10 +15,9 @@
 int main(void)
 {
     /* local declaration */
-	int i = 0;
-	int j = 0;
-	int calibration = 1;
-    T_sensors sensors;
+	int calibration;
+
+	T_sensors sensors;
     // Test
     T_coord_3D data_asp[NB_OF_MPU];
     T_coord_3D data_acc[NB_OF_MPU];
@@ -43,7 +43,7 @@ int main(void)
     	printf("[ "F_LIGHTGREEN"OK"DEFAULTCOLOR" ]\n");
     }
     printf("Calibration...\t\t\t");
-    fonction_calibration(&sensors, NB_TOMS, 1);
+    calibration = fonction_calibration(&sensors, NB_TOMS, 1);
     printf("[ "F_LIGHTGREEN"OK"DEFAULTCOLOR" ]\n");
 
     /* Program statement */
@@ -57,7 +57,12 @@ int main(void)
         	calibration = fonction_calibration(&sensors, NB_TOMS, 0);
 
         if(calibration == 0)
+        {
         	envoyer_message(&sensors);
+        }
+
+		if(btn_is_on(BTN3))
+			calibration = fonction_calibration(&sensors, NB_TOMS, 1);
 
 
         //fonction_calcul_MIDI(&sensors, NB_TOMS);
@@ -66,7 +71,7 @@ int main(void)
 
         //############################# TEST ##############################//
 
-        //printf("%f \n", sensors.mpu[0].ang[0].z);
+        printf("%f \n", sensors.mpu[0].ang[0].z);
         //printf("%f\n", sensors.mpu[0].mag[0].z);
         //printf("%f, %f \n", sensors.mpu[0].mag[0].x, sensors.mpu[0].mag[0].y);
         //printf("%f, %f, %f \n", sensors.mpu[0].ang[0].x, sensors.mpu[0].ang[1].x, sensors.mpu[0].ang[2].x);
@@ -74,22 +79,12 @@ int main(void)
 		#ifdef DEBUG
         if(sensors.mpu[0].tap.tap_detected == 1 && calibration != 1)
         {
-        	j ++;
-        	i = 100;
         	printf("Frappe detectee : %d\n", sensors.mpu[0].tap.num_tom);
         	printf("Velocite : %f\n", sensors.mpu[0].tap.velocite);
         	printf("\n");
         }
 
-        if(i > 0)
-        {
-        	led_write(1);
-        	i --;
-        }
-        else
-        {
-        	led_write(0);
-        }
+
 		#endif
         //############################# FIN TEST ##############################//
     }
