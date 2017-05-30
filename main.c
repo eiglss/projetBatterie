@@ -53,8 +53,16 @@ int main(void)
     	read_all(data_acc, data_asp, data_mag);
         compute_mpu_infos (&sensors, data_asp, data_acc, data_mag, calibration);
 
+
+
+
         if(calibration == 1)
+        {
         	calibration = fonction_calibration(&sensors, NB_TOMS, 0);
+            if(calibration == 0)
+            	fonction_calcul_MIDI(&sensors, NB_TOMS);
+        }
+
 
         if(calibration == 0)
         {
@@ -65,7 +73,7 @@ int main(void)
 			calibration = fonction_calibration(&sensors, NB_TOMS, 1);
 
 
-        //fonction_calcul_MIDI(&sensors, NB_TOMS);
+
 
         //envoyer_message(&sensors);
 

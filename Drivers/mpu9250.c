@@ -11,6 +11,7 @@
 /*******************************    LIBRARYS    *******************************/
 #include "mpu9250.h"
 #include "switch.h"
+#include "led.h"
 #include <math.h>
 
 /*******************************   FUNCTIONS    *******************************/
@@ -746,6 +747,7 @@ void ak8963_calibrate(ak8963_t * ak8963)
     /* Program statement */
     while(sw_is_on(SW3))
     {
+        led_set(LED3);
         if(ak8963_read_mag(ak8963) == 0);
         {
             if(sw_is_on(SW2))
@@ -780,4 +782,5 @@ void ak8963_calibrate(ak8963_t * ak8963)
     {
         ak8963->offset.z = (minz+maxz)*-0.5;
     }
+    led_clear(LED3);
 }
