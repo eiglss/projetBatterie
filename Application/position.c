@@ -155,8 +155,7 @@ void compute_angle (T_mpu_infos *p_mpu, float p_sample_time_s)
     gyr_angle = add_coord_3D(scalar_time_coord_3D(p_mpu->asp[0], p_sample_time_s), p_mpu->ang[1]);
 
     p_mpu->ang[0] = add_coord_3D(scalar_time_coord_3D(gyr_angle, ALPHA_PARAM), scalar_time_coord_3D(acc_angle, 1 - ALPHA_PARAM));
-    p_mpu->ang[0].z = (gyr_angle.z*ALPHA_PARAM) + (p_mpu->mag[0].z*(1-ALPHA_PARAM));
-    //p_mpu->ang[0].z = p_mpu->mag[0].z;
+    p_mpu->ang[0].z = p_mpu->mag[0].x;
 
     // Calcul de l'acceleration angulaire (derivee de la vitesse angulaire)
     // Operation : accel_angulaire = (vitesse_angulaire - vitesse_angulaire_prec) / T_echantillonage
