@@ -232,10 +232,10 @@ int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
 						ok = 1;
 						for(j = p_nb_toms ; j > left_toms[i] ; j--)
 						{
-							if (abs_angle_diff(p_sensors->mpu[i].tab_toms[j-1].z, p_sensors->mpu[i].ang[0].z) < 10.)
+							if (abs_angle_diff(p_sensors->mpu[i].tab_toms[j-1].z, p_sensors->mpu[i].ang[0].z) < 15.)
 							{
 								ok = 0;
-								nb_passages[i] = 0; // Trop proches (< 10 deg)
+								nb_passages[i] = 0; // Trop proches < 30  deg)
 							}
 						}
 						if (ok)
@@ -243,7 +243,7 @@ int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
 							nb_passages[i] = 0;
 							left_toms[i]--;
 							p_sensors->mpu[i].tab_toms[left_toms[i]].z = p_sensors->mpu[i].ang[0].z;
-							p_sensors->mpu[i].tab_toms[left_toms[i]].rayon = 20;			// test : a enlever
+							p_sensors->mpu[i].tab_toms[left_toms[i]].rayon = 0;
 							p_sensors->mpu[i].tab_toms[left_toms[i]].num_MIDI = 0;
 							#ifdef DEBUG
 								printf("Tom %d initialise a l'angle %f\n", left_toms[i], p_sensors->mpu[i].ang[0].z);
@@ -268,7 +268,7 @@ void get_tom_tapped(T_mpu_infos *p_mpu, float p_sample_time_s)
 		if(abs_angle_diff(p_mpu->tab_toms[i].z, p_mpu->ang[0].z) < p_mpu->tab_toms[i].rayon)
 		{
 			p_mpu->tap.num_tom = i;
-
+			//printf("Rayon %d %f\n",p_mpu->tab_toms[i].num_MIDI ,p_mpu->tab_toms[i].rayon);
 			// Velocite = vitesse angulaire au temps n-1 entre 0 et 100
 			p_mpu->tap.velocite = (-1*p_mpu->asp[1].y/FULL_SCALE_GYR)*100.;
 			if(p_mpu->tap.velocite > 100)

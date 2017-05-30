@@ -16,6 +16,7 @@ int main(void)
 {
     /* local declaration */
 	int calibration;
+	int cpt_vel;
 
 	T_sensors sensors;
     // Test
@@ -67,19 +68,52 @@ int main(void)
         //if(calibration == 0)
         //	envoyer_message(&sensors);
 
+        // Initialisation sur appui bouton
 		if(btn_is_on(BTN3))
+		{
 			calibration = fonction_calibration(&sensors, NB_TOMS, 1);
+			while(btn_is_on(BTN3));
+		}
 
         //############################# TEST ##############################//
 
 		#ifdef DEBUG
         if(sensors.mpu[0].tap.tap_detected == 1 && calibration != 1)
         {
+        	// Affichage TOM
         	if(sensors.mpu[0].tap.num_tom != -1)
-        	    printf("Tom numero %d\n", sensors.mpu[0].tab_toms[sensors.mpu[0].tap.num_tom].num_MIDI);
+        	{
+        		switch(sensors.mpu[0].tab_toms[sensors.mpu[0].tap.num_tom].num_MIDI)
+        		{
+        			case SNARE :
+        				printf(F_LIGHTGREEN"SNARE"DEFAULTCOLOR"\n");
+        				break;
+        			case HIGH_TOM :
+        				printf(F_LIGHTBLUE"HIGH TOM"DEFAULTCOLOR"\n");
+        				break;
+        			case MIDDLE_TOM :
+        				printf(F_LIGHTMAGENTA"MIDDLE TOM"DEFAULTCOLOR"\n");
+        				break;
+        			case FLOOR_TOM :
+        				printf(F_LIGHTYELLOW"FLOOR TOM"DEFAULTCOLOR"\n");
+        				break;
+        			default :
+        				printf(F_LIGHTRED"ERROR"DEFAULTCOLOR"\n");
+        				break;
+        		}
+				// Affichage velocite
+				printf("Velocite : ["F_LIGHTGREEN);
+				for(cpt_vel = -1 ; cpt_vel < 100 ; cpt_vel += 1)
+				{
+					if(sensors.mpu[0].tap.velocite < cpt_vel)
+						printf(F_LIGHTRED);
+					printf("X");
+				}
+				printf(DEFAULTCOLOR"]\n");
+        	}
         	else
-        		printf("Pas de tom detecte !\n");
-        	printf("Velocite %.1f\n", sensors.mpu[0].tap.velocite);
+        		printf(F_LIGHTRED"Pas de tom detecte !"DEFAULTCOLOR"\n");
+
         	printf("\n");
         }
 
