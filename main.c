@@ -83,6 +83,7 @@ int main(void)
         	// Affichage TOM
         	if(sensors.mpu[0].tap.num_tom != -1)
         	{
+        		printf(DEFAULTCOLOR CURSORHOME CLEARSCREEN);
         		switch(sensors.mpu[0].tab_toms[sensors.mpu[0].tap.num_tom].num_MIDI)
         		{
         			case SNARE :
