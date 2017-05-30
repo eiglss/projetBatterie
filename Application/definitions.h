@@ -11,11 +11,10 @@
 #define MAIN_G 1
 #define PIED_D 2
 #define PIED_G 3
-#define MAIN (0 | 1)
-#define PIED (2 | 3)
 
 #define MIN_ACA_TAPPING_CAPTURE 70000
 #define MIN_TIME_LAST_TAP 0.09 // 90ms
+#define FULL_SCALE_GYR 1000
 
 #define ALPHA_PARAM 0.99
 

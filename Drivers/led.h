@@ -20,7 +20,7 @@
 #define LED0	0x0001
 #define LED1	0x0002
 #define LED2	0x0004
-#define LED4	0x0008
+#define LED3	0x0008
 
 /***************** Macros (Inline Functions) Definitions **********************/
 /******************************************************************************/
