@@ -371,6 +371,7 @@ void tri_tab(T_sensors *p_sensors)
 			}
 		}
 	}
+
 }
 
 void Calcul_rayon_tamb (T_sensors *p_sensors)
@@ -391,13 +392,14 @@ void Calcul_rayon_tamb (T_sensors *p_sensors)
                 {
                 	p_sensors->mpu[k].tab_toms[i].rayon = abs_angle_diff(p_sensors->mpu[k].tab_toms[0].z,p_sensors->mpu[k].tab_toms[i].z)/2;
                 }
-                else if(p_sensors->mpu[k].tab_toms[i].rayon > (calc = abs_angle_diff(p_sensors->mpu[k].tab_toms[i].z,p_sensors->mpu[k].tab_toms[j].z)/2))
+                else if(p_sensors->mpu[k].tab_toms[i].rayon > (calc = (abs_angle_diff(p_sensors->mpu[k].tab_toms[i].z,p_sensors->mpu[k].tab_toms[j].z)/2)))
                 {
                 	p_sensors->mpu[k].tab_toms[i].rayon = calc;
                 }
             }
             }
         }
+
  ////////////////////////////////////////////////////////////////
  ///////// Vérification  et Amelioration des rayons /////////////
       tri_tab(p_sensors);
@@ -420,9 +422,5 @@ void Calcul_rayon_tamb (T_sensors *p_sensors)
 
       }
    	}
-	 printf("\nListe des points apres calcul rayon\n");
-	 printf("z : %2f rayon : %2f\n", p_sensors->mpu[0].tab_toms[3].z,p_sensors->mpu[0].tab_toms[3].rayon);
-	 printf("z : %2f rayon : %2f\n", p_sensors->mpu[0].tab_toms[2].z,p_sensors->mpu[0].tab_toms[2].rayon);
-	 printf("z : %2f rayon : %2f\n", p_sensors->mpu[0].tab_toms[1].z,p_sensors->mpu[0].tab_toms[1].rayon);
-	 printf("z : %2f rayon : %2f\n", p_sensors->mpu[0].tab_toms[0].z,p_sensors->mpu[0].tab_toms[0].rayon);
+
 }
