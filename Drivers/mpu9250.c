@@ -202,7 +202,7 @@ int ak8963_read_register(ak8963_t * ak8963, uint8_t reg_addr, uint8_t * data, ui
 * Configure the precision of the gyroscope
 *
 * @param    mpu9250 is a pointer to the mpu9250_t instance
-* @param    scale the precision to be setting (0: +/-250ï¿½/s; 1: +/-4g; 2: +/-8g
+* @param    scale the precision to be setting (0: +/-250Ã¯Â¿Â½/s; 1: +/-4g; 2: +/-8g
 *           3: +/-16g)
 *
 * @return   -1 if an error occurred else 0
@@ -262,7 +262,7 @@ int mpu9250_acc_scale(mpu9250_t * mpu9250, uint8_t scale)
 *
 * @note     IIC in the ak8963 instance must be initialize before using this
 *           function. The continuous mode 2 is configured after using this
-*           function. 14 bits correspond to 0.6 ï¿½T/LSB and 16 bits to 0.15ï¿½T/LSB
+*           function. 14 bits correspond to 0.6 Ã¯Â¿Â½T/LSB and 16 bits to 0.15Ã¯Â¿Â½T/LSB
 *
 *******************************************************************************/
 int ak8963_mag_scale(ak8963_t * ak8963, uint8_t scale)
@@ -297,7 +297,7 @@ int ak8963_mag_scale(ak8963_t * ak8963, uint8_t scale)
 *
 * @note     IIC in the ak8963 instance must be initialize before using this
 *           function. The continuous mode 2 is configured after using this
-*           function. 14 bits correspond to 0.6 ï¿½T/LSB and 16 bits to 0.15ï¿½T/LSB
+*           function. 14 bits correspond to 0.6 Ã¯Â¿Â½T/LSB and 16 bits to 0.15Ã¯Â¿Â½T/LSB
 *
 *******************************************************************************/
 int ak8963_mag_mode(ak8963_t * ak8963, uint8_t mode)
@@ -386,6 +386,26 @@ int ak8963_sensitivity_adj(ak8963_t * ak8963)
     return ak8963_mag_scale(ak8963, 1); /* 16 bits precision */
 }
 
+/******************************************************************************/
+/**
+* offsey adjustment of the ak8963
+*
+* @param    ak8963 is a pointer to the ak8963_t instance
+* @param    x, y, z offset on each axis
+*
+* @return   None
+*
+* @note     None.
+*
+*******************************************************************************/
+void ak8963_offset_adj(ak8963_t * ak8963, float x, float y, float z)
+{
+    ak8963->offset.x = x;
+    ak8963->offset.y = y;
+    ak8963->offset.z = z;
+}
+
+
 
 /******************************************************************************/
 /**
@@ -431,12 +451,13 @@ int ak8963_initialization(ak8963_t * ak8963, axi_iic_t * iic, uint8_t address)
     if(ak8963_sensitivity_adj(ak8963)) return -1;
     if(ak8963_mag_scale(ak8963, 1)) return -1; /* 16-bit output */
     if(ak8963_mag_mode(ak8963, AK8963_MAG_MODE3) == -1) return -1; /* continuous mode 2 */
+    ak8963_offset_adj(ak8963, 0, 0, 0);
     return ak8963_mag_scale(ak8963, 1); /* 16 bits precision */
 }
 
 /******************************************************************************/
 /**
-* Transform gyroscope sensor raw data to ï¿½/s
+* Transform gyroscope sensor raw data to Ã¯Â¿Â½/s
 *
 * @param    mpu9250 is a pointer to the mpu9250_t instance
 * @param    x,y,z are the raw data of the gyroscope sensor for x, y & z axis
@@ -493,7 +514,7 @@ void mpu9250_acc_g(mpu9250_t * mpu9250, const int16_t x, const int16_t y, const 
 *******************************************************************************/
 int mpu9250_temp_degC(mpu9250_t * mpu9250, const int16_t temp_out)
 {
-    if(in_range(temp_out, -20366, 21367)) /* -40ï¿½C <= temp_out <= 85ï¿½C ? */
+    if(in_range(temp_out, -20366, 21367)) /* -40Ã¯Â¿Â½C <= temp_out <= 85Ã¯Â¿Â½C ? */
     {
         mpu9250->temp_data = ((temp_out)/(float)333.87+(float)21.);
         return 0;
@@ -503,7 +524,7 @@ int mpu9250_temp_degC(mpu9250_t * mpu9250, const int16_t temp_out)
 
 /******************************************************************************/
 /**
-* Transform magnetometer sensor raw data to µT
+* Transform magnetometer sensor raw data to ÂµT
 *
 * @param    ak8963 is a pointer to the ak8963_t instance
 * @param    x,y,z are the raw data of the magnetometer sensor for x, y & z axis
@@ -521,9 +542,9 @@ int ak8963_mag_uT(ak8963_t * ak8963, const int16_t x, const int16_t y, const int
     /* prorgam statement */
     if(in_range((int16_t)x, -range, range) && in_range((int16_t)y, -range, range) && in_range((int16_t)z, -range, range))
     {
-        ak8963->mag.x = x*scale*(ak8963->hadj.x);
-        ak8963->mag.y = y*scale*(ak8963->hadj.y);
-        ak8963->mag.z = z*scale*(ak8963->hadj.z);
+        ak8963->mag.x = x*scale*(ak8963->hadj.x)+ak8963->offset.x;
+        ak8963->mag.y = y*scale*(ak8963->hadj.y)+ak8963->offset.y;
+        ak8963->mag.z = z*scale*(ak8963->hadj.z)+ak8963->offset.z;
         return 0;
     }
     return -1;
@@ -532,10 +553,10 @@ int ak8963_mag_uT(ak8963_t * ak8963, const int16_t x, const int16_t y, const int
 
 /******************************************************************************/
 /**
-* compute the angle between the vector u+v+w and the main axis of u
+* compute the angle between the vector u+v and the main axis of u
 *
 * @param    ang_u is a pointer to the solution of the problem
-* @param    u,v,w are vector needed to compute angle
+* @param    u,v are vector needed to compute angle
 *
 * @return   -1 if an error occurred else 0
 *
@@ -543,31 +564,19 @@ int ak8963_mag_uT(ak8963_t * ak8963, const int16_t x, const int16_t y, const int
 *           different axis
 *
 *******************************************************************************/
-static int vector_to_angle(float * ang_u, float u, float v, float w)
+static int vector_to_angle(float * ang_u, float u, float v)
 {
-    if(u == 0)
-    {
-        *ang_u = 90.;
-    }
-    else if(u > 0)
-    {
-        *ang_u = atan(sqrt(v*v+w*w)/u)*180./M_PI;
-    }
-    else if(u < 0)
-    {
-        *ang_u = atan(sqrt(v*v+w*w)/u)*180./M_PI+180;
-    }
-    else
-    {
-        return -1;
-    }
-    *ang_u = (v >= 0)? *ang_u: -(*ang_u);
+	*ang_u = (atan2(u,v) * 180.) /M_PI;
+	if (*ang_u < 0)
+	{
+		*ang_u = 360. + *ang_u;
+	}
     return 0;
 }
 
 /******************************************************************************/
 /**
-* Transform magnetometer sensor raw data to degree (compass) and update ÂµT data
+* Transform magnetometer sensor raw data to degree (compass) and update Ã‚ÂµT data
 *
 * @param    ak8963 is a pointer to the ak8963_t instance
 * @param    x,y,z are the raw data of the magnetometer sensor for x, y & z axis
@@ -580,9 +589,9 @@ static int vector_to_angle(float * ang_u, float u, float v, float w)
 int ak8963_mag_compass(ak8963_t * ak8963, const int16_t x, const int16_t y, const int16_t z)
 {
     if(ak8963_mag_uT(ak8963, x, y, z) == -1) return -1;
-    vector_to_angle(&ak8963->compass.x, x, y, z);
-    vector_to_angle(&ak8963->compass.y, y, x, z);
-    vector_to_angle(&ak8963->compass.z, z, x, z);
+    vector_to_angle(&ak8963->compass.x, ak8963->mag.x, ak8963->mag.y);
+    vector_to_angle(&ak8963->compass.y, ak8963->mag.y, ak8963->mag.x);
+    vector_to_angle(&ak8963->compass.z, ak8963->mag.x, ak8963->mag.z);
     return 0;
 }
 

@@ -16,7 +16,7 @@
 /**** GPIO ****/
 #define GPIO_SW GPIO_1
 
-/**** LEDS ****/
+/**** SWITCHS ****/
 #define SW0	0x0001
 #define SW1	0x0002
 #define SW2	0x0004
