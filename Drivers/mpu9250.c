@@ -10,6 +10,7 @@
 
 /*******************************    LIBRARYS    *******************************/
 #include "mpu9250.h"
+#include "switch.h"
 #include <math.h>
 
 /*******************************   FUNCTIONS    *******************************/
@@ -405,8 +406,6 @@ void ak8963_offset_adj(ak8963_t * ak8963, float x, float y, float z)
     ak8963->offset.z = z;
 }
 
-
-
 /******************************************************************************/
 /**
 * Enable all the sensor of the mpu9250, with no filtering and no interruption
@@ -724,4 +723,61 @@ int mpu9250_read_all(mpu9250_t * mpu9250)
     mpu9250_acc_g(mpu9250, acc_x, acc_y, acc_z);
     mpu9250_gy_deg_per_s(mpu9250, gy_x, gy_y, gy_z);
     return mpu9250_temp_degC(mpu9250, temp);
+}
+
+/******************************************************************************/
+/**
+* Calibrate magnetometer
+*
+* @param    ak8963 is a pointer to the ak8963_t instance
+*
+* @return   None.
+*
+* @note     The data is automatically update in the ak8963_t instance.
+*
+*******************************************************************************/
+void ak8963_calibrate(ak8963_t * ak8963)
+{
+    /* Local declaration */
+    float maxx = ak8963->mag.x, minx = ak8963->mag.x;
+    float maxy = ak8963->mag.y, miny = ak8963->mag.y;
+    float maxz = ak8963->mag.z, minz = ak8963->mag.z;
+    uint8_t x = FALSE, y = FALSE, z = FALSE;
+    /* Program statement */
+    while(sw_is_on(SW3))
+    {
+        if(ak8963_read_mag(ak8963) == 0);
+        {
+            if(sw_is_on(SW2))
+            {
+                maxx = (ak8963->mag.x > maxx)? ak8963->mag.x : maxx;
+                minx = (ak8963->mag.x < minx)? ak8963->mag.x : minx;
+                x = TRUE;
+            }
+            if(sw_is_on(SW1))
+            {
+                maxy = (ak8963->mag.y > maxy)? ak8963->mag.y : maxy;
+                miny = (ak8963->mag.y < miny)? ak8963->mag.y : miny;
+                y = TRUE;
+            }
+            if(sw_is_on(SW0))
+            {
+                maxz = (ak8963->mag.z > maxz)? ak8963->mag.z : maxz;
+                minz = (ak8963->mag.z < minz)? ak8963->mag.z : minz;
+                z = TRUE;
+            }
+        }
+    }
+    if(x)
+    {
+        ak8963->offset.x = (minx+maxx)*-0.5;
+    }
+    if(y)
+    {
+        ak8963->offset.y = (miny+maxy)*-0.5;
+    }
+    if(z)
+    {
+        ak8963->offset.z = (minz+maxz)*-0.5;
+    }
 }
