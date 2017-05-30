@@ -22,6 +22,8 @@ void read_all(T_coord_3D* p_data_acc, T_coord_3D* p_data_asp, T_coord_3D* p_data
 	p_data_mag[MAIN_D].y = ak8963.compass.y;
 	p_data_mag[MAIN_D].z = ak8963.compass.z;
 
+    ak8963_calibrate(&ak8963);
+
 	// Capteurs autres
 	// ...
 }
