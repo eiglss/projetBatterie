@@ -294,19 +294,12 @@ void compute_mpu_infos (T_sensors *p_sensors, T_coord_3D* data_asp, T_coord_3D* 
 void fonction_calcul_MIDI(T_sensors *p_sensors, int p_nb_toms)
 {
 	int i, j, k;
-	//printf("%d \n", p_sensors->mpu[0].tab_toms[p_nb_toms-1].num_MIDI);
-	//printf("%d \n", p_sensors->mpu[0].tab_toms[p_nb_toms-2].num_MIDI);
-	//printf("%d \n", p_sensors->mpu[0].tab_toms[p_nb_toms-3].num_MIDI);
-	//printf("%d \n", p_sensors->mpu[0].tab_toms[p_nb_toms-4].num_MIDI);
-	//calcul la posion de toms
-	/*
+	//calcul la position de toms
 	for (i=0;i<NB_OF_MPU;i++){
 		if( (i == MAIN_D) || (i == MAIN_G)){
 			for (j=0;j<p_nb_toms;j++){
 				for (k=0;k<p_nb_toms;k++){
 					if(j!=k){
-						printf("%d ", p_sensors->mpu[0].tab_toms[0].num_MIDI);
-						/*
 						if((p_sensors->mpu[i].tab_toms[j].z) > (p_sensors->mpu[i].tab_toms[k].z)){
 							p_sensors->mpu[i].tab_toms[j].num_MIDI++;
 						}
@@ -314,12 +307,7 @@ void fonction_calcul_MIDI(T_sensors *p_sensors, int p_nb_toms)
 		   		}
         	}
 			//Donne Numero de MIDI
-			//#define KICK 35 //pied
-			//#define SNARE 38 //gauche
-			//#define HIGH_TOM 50 //millieu gauche
-			//#define MIDDLE_TOM 43 //millieu droite
-			//#define FLOOR_TOM 41 //droite
-        	/*for (j=0;j<p_nb_toms;j++){
+        	for (j=0;j<p_nb_toms;j++){
             	switch (p_sensors->mpu[i].tab_toms[j].num_MIDI){
                 	case 0 :
                     	p_sensors->mpu[i].tab_toms[j].num_MIDI = SNARE;
@@ -340,5 +328,8 @@ void fonction_calcul_MIDI(T_sensors *p_sensors, int p_nb_toms)
         	}//end of "for (j=0;j<p_nb_toms;j++)""
 		}//end of "if( (i == MAIN_D) || (i == MAIN_G))""
 	}//end of "for (i=0;i<NB_OF_MPU;i++)""
-	*/
+	//printf("%d \n", p_sensors->mpu[0].tab_toms[0].num_MIDI);
+	//printf("%d \n", p_sensors->mpu[0].tab_toms[1].num_MIDI);
+	//printf("%d \n", p_sensors->mpu[0].tab_toms[2].num_MIDI);
+	//printf("%d \n", p_sensors->mpu[0].tab_toms[3].num_MIDI);
 }//end of "void fonction_calcul_MIDI"
