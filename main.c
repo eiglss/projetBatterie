@@ -75,9 +75,11 @@ int main(void)
 		#ifdef DEBUG
         if(sensors.mpu[0].tap.tap_detected == 1 && calibration != 1)
         {
-        	printf("Frappe detectee : %d\n", sensors.mpu[0].tap.num_tom);
-        	printf("Velocite : %.1f\n", sensors.mpu[0].tap.velocite);
-        	printf("Angle : %.1f \n", sensors.mpu[0].ang[0].z);
+        	if(sensors.mpu[0].tap.num_tom != -1)
+        	    printf("Tom numero %d\n", sensors.mpu[0].tab_toms[sensors.mpu[0].tap.num_tom].num_MIDI);
+        	else
+        		printf("Pas de tom detecte !\n");
+        	printf("Velocite %.1f\n", sensors.mpu[0].tap.velocite);
         	printf("\n");
         }
 
