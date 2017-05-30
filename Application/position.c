@@ -26,7 +26,6 @@ void read_all(T_coord_3D* p_data_acc, T_coord_3D* p_data_asp, T_coord_3D* p_data
 	p_data_mag[MAIN_D].z = ak8963.compass.z;
 
     ak8963_calibrate(&ak8963);
-
 	// Capteurs autres
 	// ...
 }
@@ -36,7 +35,6 @@ int init_all_mpu (T_sensors *p_sensors)
     // Init des MPU
 	if(mpu9250_initialization(&mpu9250, IIC_0, MPU9250_ADDR) == -1) return -1;
 	if(ak8963_initialization(&ak8963, IIC_0, AK8963_ADDR) ==-1) return -1;
-	ak8963_offset_adj(&ak8963, -52.2457, -48.8168, -6.6129);  // offset du capteur 1
 
     int i, j;
     for (i=0;i<NB_OF_MPU;i++)
@@ -245,7 +243,7 @@ int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
 							nb_passages[i] = 0;
 							left_toms[i]--;
 							p_sensors->mpu[i].tab_toms[left_toms[i]].z = p_sensors->mpu[i].ang[0].z;
-							p_sensors->mpu[i].tab_toms[left_toms[i]].rayon = 10;						// test : a enlever
+							p_sensors->mpu[i].tab_toms[left_toms[i]].rayon = 20;			// test : a enlever
 							p_sensors->mpu[i].tab_toms[left_toms[i]].num_MIDI = 0;
 							#ifdef DEBUG
 								printf("Tom %d initialise a l'angle %f\n", left_toms[i], p_sensors->mpu[i].ang[0].z);
@@ -263,14 +261,20 @@ int fonction_calibration(T_sensors *p_sensors, int p_nb_toms, int init)
 
 void get_tom_tapped(T_mpu_infos *p_mpu, float p_sample_time_s)
 {
-	int i = 0;
+	int i;
+	p_mpu->tap.num_tom = -1;
 	for (i=0 ; i<NB_TOMS ; i++)
 	{
 		if(abs_angle_diff(p_mpu->tab_toms[i].z, p_mpu->ang[0].z) < p_mpu->tab_toms[i].rayon)
 		{
 			p_mpu->tap.num_tom = i;
+
 			// Velocite = vitesse angulaire au temps n-1 entre 0 et 100
-			p_mpu->tap.velocite = (-1*p_mpu->asp[1].y/2000.)*100.;
+			p_mpu->tap.velocite = (-1*p_mpu->asp[1].y/FULL_SCALE_GYR)*100.;
+			if(p_mpu->tap.velocite > 100)
+				p_mpu->tap.velocite = 100;
+			else if(p_mpu->tap.velocite < 0)
+				p_mpu->tap.velocite = 0;
 		}
 	}
 }

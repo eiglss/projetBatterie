@@ -53,16 +53,12 @@ int main(void)
     	read_all(data_acc, data_asp, data_mag);
         compute_mpu_infos (&sensors, data_asp, data_acc, data_mag, calibration);
 
-
-
-
         if(calibration == 1)
         {
         	calibration = fonction_calibration(&sensors, NB_TOMS, 0);
             if(calibration == 0)
             	fonction_calcul_MIDI(&sensors, NB_TOMS);
         }
-
 
         if(calibration == 0)
         {
@@ -72,23 +68,14 @@ int main(void)
 		if(btn_is_on(BTN3))
 			calibration = fonction_calibration(&sensors, NB_TOMS, 1);
 
-
-
-
-        //envoyer_message(&sensors);
-
         //############################# TEST ##############################//
-
-        printf("%f \n", sensors.mpu[0].ang[0].z);
-        //printf("%f\n", sensors.mpu[0].mag[0].z);
-        //printf("%f, %f \n", sensors.mpu[0].mag[0].x, sensors.mpu[0].mag[0].y);
-        //printf("%f, %f, %f \n", sensors.mpu[0].ang[0].x, sensors.mpu[0].ang[1].x, sensors.mpu[0].ang[2].x);
 
 		#ifdef DEBUG
         if(sensors.mpu[0].tap.tap_detected == 1 && calibration != 1)
         {
         	printf("Frappe detectee : %d\n", sensors.mpu[0].tap.num_tom);
-        	printf("Velocite : %f\n", sensors.mpu[0].tap.velocite);
+        	printf("Velocite : %.1f\n", sensors.mpu[0].tap.velocite);
+        	printf("Angle : %.1f \n", sensors.mpu[0].ang[0].z);
         	printf("\n");
         }
 
