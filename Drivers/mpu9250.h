@@ -450,7 +450,6 @@ int mpu9250_filter(mpu9250_t * mpu9250, uint8_t filter);
 /**** INTERRUPTION ****/
 int mpu9250_enable_int(mpu9250_t * mpu9250);
 /**** INITIALIZATION ****/
-void ak8963_offset_adj(ak8963_t * ak8963, float x, float y, float z);
 int mpu9250_initialization(mpu9250_t * mpu9250, axi_iic_t * iic, uint8_t address);
 int ak8963_initialization(ak8963_t * ak8963, axi_iic_t * iic, uint8_t address);
 /**** CONVERSIONS ****/
@@ -464,5 +463,7 @@ int mpu9250_read_gy(mpu9250_t * mpu9250);
 int mpu9250_read_temp(mpu9250_t * mpu9250);
 int ak8963_read_mag(ak8963_t * ak8963);
 int mpu9250_read_all(mpu9250_t * mpu9250);
-
+/**** CALIBRATION ****/
+void ak8963_offset_adj(ak8963_t * ak8963, float x, float y, float z);
+void ak8963_calibrate(ak8963_t * ak8963);
 #endif /* MPU9250_H_ */

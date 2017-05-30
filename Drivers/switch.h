@@ -20,7 +20,7 @@
 #define SW0	0x0001
 #define SW1	0x0002
 #define SW2	0x0004
-#define SW4	0x0008
+#define SW3	0x0008
 
 /***************** Macros (Inline Functions) Definitions **********************/
 /******************************************************************************/
