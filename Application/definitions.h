@@ -26,6 +26,8 @@
 #define MIDDLE_TOM 43 //millieu droite
 #define FLOOR_TOM 41 //droite
 
+#define min(a, b) ((a) < (b))? (a) : (b)
+
 typedef struct
 {
     float x;

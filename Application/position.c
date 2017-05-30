@@ -333,3 +333,96 @@ void fonction_calcul_MIDI(T_sensors *p_sensors, int p_nb_toms)
 	//printf("%d \n", p_sensors->mpu[0].tab_toms[2].num_MIDI);
 	//printf("%d \n", p_sensors->mpu[0].tab_toms[3].num_MIDI);
 }//end of "void fonction_calcul_MIDI"
+
+
+// initialisation rayon a 0
+void init_rayon(T_sensors *p_sensors)
+{
+	int i = 0,j=0;
+	for(j=0;j<NB_OF_MPU;j++)
+	{
+		p_sensors->mpu[j].tab_toms[0].rayon = abs_angle_diff(p_sensors->mpu[j].tab_toms[0].z,p_sensors->mpu[j].tab_toms[1].z)/2;
+		for(i = 1; i <NB_TOMS; i++)
+		{
+			p_sensors->mpu[j].tab_toms[i].rayon = 0;
+		}
+	}
+}
+
+//fonction permettant de trier le tableau on fonction de x
+void tri_tab(T_sensors *p_sensors)
+{
+  int i,j,k;
+
+	for(k=0;k<NB_OF_MPU;k++)
+	{
+
+	  for (i = 0; i<NB_TOMS - 1; i++)
+	  {
+			for (j = 0; j<NB_TOMS - 1 - i; j++)
+			{
+				T_tom tmp;
+				if ( p_sensors->mpu[k].tab_toms[j].z  > p_sensors->mpu[k].tab_toms[j+1].z)
+				{
+					tmp = p_sensors->mpu[k].tab_toms[j];
+					p_sensors->mpu[k].tab_toms[j] = p_sensors->mpu[k].tab_toms[j+1];
+					p_sensors->mpu[k].tab_toms[j+1] = tmp;
+				}
+			}
+		}
+	}
+}
+
+void Calcul_rayon_tamb (T_sensors *p_sensors)
+{
+       int i=0,j=0,k=0;
+       float calc = 0,calc2 = 0;
+       init_rayon(p_sensors);
+////////////// Premier calcul de rayon /////////////////////////
+   	for(k=0;k<NB_OF_MPU;k++)
+   	{
+       for(i=0; i<NB_TOMS; i++)
+        {
+            for(j=1; j<NB_TOMS; j++)
+            {
+            if(i!= j)
+            {
+                if(p_sensors->mpu[k].tab_toms[i].rayon == 0)
+                {
+                	p_sensors->mpu[k].tab_toms[i].rayon = abs_angle_diff(p_sensors->mpu[k].tab_toms[0].z,p_sensors->mpu[k].tab_toms[i].z)/2;
+                }
+                else if(p_sensors->mpu[k].tab_toms[i].rayon > (calc = abs_angle_diff(p_sensors->mpu[k].tab_toms[i].z,p_sensors->mpu[k].tab_toms[j].z)/2))
+                {
+                	p_sensors->mpu[k].tab_toms[i].rayon = calc;
+                }
+            }
+            }
+        }
+ ////////////////////////////////////////////////////////////////
+ ///////// Vérification  et Amelioration des rayons /////////////
+      tri_tab(p_sensors);
+      for(i=1;i<NB_TOMS;i++)
+      {
+          if((calc =abs_angle_diff(p_sensors->mpu[k].tab_toms[i-1].z,p_sensors->mpu[k].tab_toms[i].z))!=(p_sensors->mpu[k].tab_toms[i-1].rayon + p_sensors->mpu[k].tab_toms[i].rayon))
+          {
+            if (i+1 != NB_TOMS)
+            {
+                if ((calc2 =abs_angle_diff(p_sensors->mpu[k].tab_toms[i].z,p_sensors->mpu[k].tab_toms[i+1].z))!=(p_sensors->mpu[k].tab_toms[i].rayon + p_sensors->mpu[k].tab_toms[i+1].rayon))
+                  {
+                	p_sensors->mpu[k].tab_toms[i].rayon = min((calc-p_sensors->mpu[k].tab_toms[i-1].rayon),(calc2-p_sensors->mpu[k].tab_toms[i+1].rayon));
+                  }
+            }
+            else
+            {
+            	p_sensors->mpu[k].tab_toms[i].rayon = calc-p_sensors->mpu[k].tab_toms[i-1].rayon;
+            }
+          }
+
+      }
+   	}
+	 printf("\nListe des points apres calcul rayon\n");
+	 printf("z : %2f rayon : %2f\n", p_sensors->mpu[0].tab_toms[3].z,p_sensors->mpu[0].tab_toms[3].rayon);
+	 printf("z : %2f rayon : %2f\n", p_sensors->mpu[0].tab_toms[2].z,p_sensors->mpu[0].tab_toms[2].rayon);
+	 printf("z : %2f rayon : %2f\n", p_sensors->mpu[0].tab_toms[1].z,p_sensors->mpu[0].tab_toms[1].rayon);
+	 printf("z : %2f rayon : %2f\n", p_sensors->mpu[0].tab_toms[0].z,p_sensors->mpu[0].tab_toms[0].rayon);
+}
