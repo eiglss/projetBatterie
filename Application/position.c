@@ -2,8 +2,11 @@
 #include "position.h"
 #include "../Drivers/mpu9250.h"
 
+// IMUs
 static mpu9250_t mpu9250;
 static ak8963_t ak8963;
+
+// Variables globales
 static float zero_point=0;
 
 void read_all(T_coord_3D* p_data_acc, T_coord_3D* p_data_asp, T_coord_3D* p_data_mag)
