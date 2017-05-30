@@ -261,7 +261,7 @@ void get_tom_tapped(T_mpu_infos *p_mpu, float p_sample_time_s)
 	int i = 0;
 	for (i=0 ; i<NB_TOMS ; i++)
 	{
-		if(abs_angle_diff(p_mpu->tab_toms[i].z, p_mpu->ang[0].z) < /*p_mpu->tab_toms[i].rayon/*/ 1000)
+		if(abs_angle_diff(p_mpu->tab_toms[i].z, p_mpu->ang[0].z) < p_mpu->tab_toms[i].rayon)
 		{
 			p_mpu->tap.num_tom = i;
 			// Velocite = vitesse angulaire au temps n-1 entre 0 et 100
