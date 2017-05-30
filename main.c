@@ -60,12 +60,16 @@ int main(void)
         {
         	calibration = fonction_calibration(&sensors, NB_TOMS, 0);
             if(calibration == 0)
-            	fonction_calcul_MIDI(&sensors, NB_TOMS);
+            {
+              Calcul_rayon_tamb(&sensors);
+              fonction_calcul_MIDI(&sensors, NB_TOMS);
+
+            }
         }
 
 
-        if(calibration == 0)
-        	envoyer_message(&sensors);
+        //if(calibration == 0)
+        //	envoyer_message(&sensors);
 
 
 
