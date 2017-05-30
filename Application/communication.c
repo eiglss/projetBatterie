@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "communication.h"
+#include "../Drivers/timer.h"
 
 void traiter_message(T_sensors *p_sensors)
 {

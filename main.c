@@ -66,7 +66,7 @@ int main(void)
         }
 
         //if(calibration == 0)
-        //	envoyer_message(&sensors);
+        	//envoyer_message(&sensors);
 
         // Initialisation sur appui bouton
 		if(btn_is_on(BTN3))
@@ -103,11 +103,11 @@ int main(void)
         		}
 				// Affichage velocite
 				printf("Velocite : ["F_LIGHTGREEN);
-				for(cpt_vel = -1 ; cpt_vel < 100 ; cpt_vel += 1)
+				for(cpt_vel = -1 ; cpt_vel < 100 ; cpt_vel += 2)
 				{
 					if(sensors.mpu[0].tap.velocite < cpt_vel)
 						printf(F_LIGHTRED);
-					printf("X");
+					printf("|");
 				}
 				printf(DEFAULTCOLOR"]\n");
         	}
@@ -116,8 +116,6 @@ int main(void)
 
         	printf("\n");
         }
-
-
 		#endif
         //############################# FIN TEST ##############################//
     }
